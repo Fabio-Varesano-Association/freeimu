@@ -20,7 +20,7 @@
 float q[4];
 int raw_values[9];
 float ypr[3]; // yaw pitch roll
-char str[512];
+char str[256];
 float val[9];
 
 
@@ -63,7 +63,7 @@ void loop() {
         Serial.println();
       }
     }
-    else if(cmd=='b') {
+    /*else if(cmd=='b') {
       uint8_t count = serial_busy_wait();
       for(uint8_t i=0; i<count; i++) {
         my3IMU.accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
@@ -72,12 +72,31 @@ void loop() {
         writeArr(raw_values, 3, sizeof(int));
         Serial.println();
       }
-    }
+    }*/
     else if(cmd=='q') {
       uint8_t count = serial_busy_wait();
       for(uint8_t i=0; i<count; i++) {
         my3IMU.getQ(q);
         serialPrintFloatArr(q, 4);
+        Serial.println("");
+      }
+    }
+    else if(cmd == 'd') { // debugging outputs
+      while(1) {
+        my3IMU.getRawValues(raw_values);
+        sprintf(str, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", raw_values[0], raw_values[1], raw_values[2], raw_values[3], raw_values[4], raw_values[5], raw_values[6], raw_values[7], raw_values[8], raw_values[9], raw_values[10]);
+        Serial.print(str);
+        Serial.print('\n');
+        my3IMU.getQ(q);
+        serialPrintFloatArr(q, 4);
+        Serial.println("");
+        my3IMU.getYawPitchRoll(ypr);
+        Serial.print("Yaw: ");
+        Serial.print(ypr[0]);
+        Serial.print(" Pitch: ");
+        Serial.print(ypr[1]);
+        Serial.print(" Roll: ");
+        Serial.print(ypr[2]);
         Serial.println("");
       }
     }
