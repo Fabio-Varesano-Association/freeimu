@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-log.py - Logs data to a text file. Load the Arduino with the FreeIMU_serial program.
+time.py - Tests the output coming from an Arduino with FreeIMU for speed. 
+Load the Arduino with the FreeIMU_serial program.
 
 Copyright (C) 2012 Fabio Varesano <fvaresano@yahoo.it>
 
@@ -25,13 +26,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
-import time, serial
+import time
+import serial
 from struct import unpack
 from binascii import unhexlify
 from subprocess import call
 
 
-print "\n\nWelcome to the FreeIMU logger routine!\nCopyright © Fabio Varesano 2012.\nReleased under GPL v3 - See http://www.gnu.org/copyleft/gpl.html\n\n"
+
+print "\n\nWelcome to the FreeIMU timer routine!\nCopyright © Fabio Varesano 2012.\nReleased under GPL v3 - See http://www.gnu.org/copyleft/gpl.html\n\n"
 
 print "Please load the FreeIMU_serial program from the FreeIMU library examples on your Arduino. Once you correctly installed the FreeIMU library, the examples are available from File->Examples->FreeIMU in the Arduino IDE.\nWhen done, close the Arduino IDE and its serial monitor."
 raw_input('Hit Enter to continue.')
@@ -56,29 +59,27 @@ ser.write('v') # ask version
 print "\nFreeIMU library version informations:", 
 print ser.readline()
 
-print "\nThe program will now start sampling debugging values and logging them to the log.txt file.\n"
+print "\nThe program will now start sampling debugging values and timing them.\n"
 raw_input('Hit Enter to continue.')
 
 
-count = 30
 buff = [0.0 for i in range(9)]
-filename = 'log.txt'
 
+start = time.time()
 tot_readings = 0
 
 try:
-  print "Sampling from FreeIMU and logging to %s.\nHit CTRL+C to interrupt." % (filename)
-  f = open(filename, 'w')
-  ser.write('d')
+  print "Sampling from FreeIMU and timing readings"
   while True:
-    f.write(ser.read()) # let's just log everything into the log file
+    ser.readline()
+    ser.readline()
+    ser.readline()
     tot_readings = tot_readings + 1
-    if(tot_readings % 10000 == 0):
-      print "%d bytes logged. Hit CTRL+C to interrupt." % (tot_readings)
+    if(tot_readings % 100 == 0):
+      tot_time = time.time() - start
+      print "%d readings obtained. Frequency %f over %d seconds. Hit CTRL+C to interrupt." % (tot_readings, tot_readings / tot_time, tot_time)
       
       
 except KeyboardInterrupt:
   ser.close()
-  f.close()
-  print "\n%d bytes logged to %s" % (tot_readings, filename)
 

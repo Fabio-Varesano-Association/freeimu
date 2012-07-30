@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <inttypes.h>
+#include <stdint.h>
 //#define DEBUG
 #include "FreeIMU.h"
 // #include "WireUtils.h"
@@ -150,6 +151,10 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
   #if HAS_MS5611()
     baro.init(FIMU_BARO_ADDR);
   #endif
+    
+  // zero gyro
+  zeroGyro();
+ 
 }
 
 
@@ -159,6 +164,9 @@ void FreeIMU::getRawValues(int * raw_values) {
     gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
   #else
     accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+//     raw_values[3] = raw_values[3] - gyro_off_x;
+//     raw_values[4] = raw_values[4] - gyro_off_y;
+//     raw_values[5] = raw_values[5] - gyro_off_z;
   #endif
   #if HAS_HMC5883L()
     magn.getValues(&raw_values[6], &raw_values[7], &raw_values[8]);
@@ -189,6 +197,11 @@ void FreeIMU::getValues(float * values) {
   #else // MPU6050
     int16_t accgyroval[6];
     accgyro.getMotion6(&accgyroval[0], &accgyroval[1], &accgyroval[2], &accgyroval[3], &accgyroval[4], &accgyroval[5]);
+    
+    accgyroval[3] = accgyroval[3] - gyro_off_x;
+    accgyroval[4] = accgyroval[4] - gyro_off_y;
+    accgyroval[5] = accgyroval[5] - gyro_off_z;
+//     
     for(int i = 0; i<6; i++) {
       if(i < 3) {
         values[i] = (float) accgyroval[i];
@@ -207,6 +220,24 @@ void FreeIMU::getValues(float * values) {
     values[7] = (values[7] - magn_off_y) / magn_scale_y;
     values[8] = (values[8] - magn_off_z) / magn_scale_z; 
   #endif
+}
+
+
+void FreeIMU::zeroGyro() {
+  const int totSamples = 3;
+  int raw[9];
+  float tmpOffsets[] = {0,0,0};
+  
+  for (int i = 0; i < totSamples; i++){
+    getRawValues(raw);
+    tmpOffsets[0] += raw[3];
+    tmpOffsets[1] += raw[4];
+    tmpOffsets[2] += raw[5];
+  }
+  
+  gyro_off_x = tmpOffsets[0] / totSamples;
+  gyro_off_y = tmpOffsets[1] / totSamples;
+  gyro_off_z = tmpOffsets[2] / totSamples;
 }
 
 
@@ -247,11 +278,11 @@ void  FreeIMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, floa
     float halfwx, halfwy, halfwz;
     
     // Normalise magnetometer measurement
-    /*recipNorm = invSqrt(mx * mx + my * my + mz * mz);
+    recipNorm = invSqrt(mx * mx + my * my + mz * mz);
     mx *= recipNorm;
     my *= recipNorm;
     mz *= recipNorm;
-    */
+    
     // Reference direction of Earth's magnetic field
     hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
     hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));

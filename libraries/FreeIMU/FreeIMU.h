@@ -151,6 +151,7 @@ class FreeIMU
     #else
     void init(int accgyro_addr, bool fastmode);
     #endif
+    void zeroGyro();
     void getRawValues(int * raw_values);
     void getValues(float * values);
     void getQ(float * q);
@@ -177,6 +178,8 @@ class FreeIMU
       MPU6050 accgyro;
     #endif
       
+    
+      
     #if HAS_MS5611()
       MS561101BA baro;
     #endif
@@ -200,6 +203,7 @@ class FreeIMU
     unsigned long lastUpdate, now; // sample period expressed in milliseconds
     float sampleFreq; // half the sample period expressed in seconds
     int startLoopTime;
+    int16_t gyro_off_x, gyro_off_y, gyro_off_z;
 };
 
 float invSqrt(float number);
