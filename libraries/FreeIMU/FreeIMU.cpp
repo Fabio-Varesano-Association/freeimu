@@ -81,6 +81,10 @@ void FreeIMU::init(bool fastmode) {
   #endif
 }
 
+
+/**
+ * Initialize the FreeIMU I2C bus, sensors and performs gyro offsets calibration
+*/
 #if HAS_ITG3200()
 void FreeIMU::init(int acc_addr, int gyro_addr, bool fastmode) {
 #else
@@ -157,16 +161,15 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
  
 }
 
-
+/**
+ * Populates raw_values with the raw_values from the sensors
+*/
 void FreeIMU::getRawValues(int * raw_values) {
   #if HAS_ITG3200()
     acc.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
     gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
   #else
     accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
-//     raw_values[3] = raw_values[3] - gyro_off_x;
-//     raw_values[4] = raw_values[4] - gyro_off_y;
-//     raw_values[5] = raw_values[5] - gyro_off_z;
   #endif
   #if HAS_HMC5883L()
     magn.getValues(&raw_values[6], &raw_values[7], &raw_values[8]);
@@ -186,6 +189,9 @@ void FreeIMU::getRawValues(int * raw_values) {
 }
 
 
+/**
+ * Populates values with calibrated readings from the sensors
+*/
 void FreeIMU::getValues(float * values) {  
   #if HAS_ITG3200()
     int accval[3];
@@ -198,10 +204,11 @@ void FreeIMU::getValues(float * values) {
     int16_t accgyroval[6];
     accgyro.getMotion6(&accgyroval[0], &accgyroval[1], &accgyroval[2], &accgyroval[3], &accgyroval[4], &accgyroval[5]);
     
+    // remove offsets from the gyroscope
     accgyroval[3] = accgyroval[3] - gyro_off_x;
     accgyroval[4] = accgyroval[4] - gyro_off_y;
     accgyroval[5] = accgyroval[5] - gyro_off_z;
-//     
+
     for(int i = 0; i<6; i++) {
       if(i < 3) {
         values[i] = (float) accgyroval[i];
@@ -218,11 +225,14 @@ void FreeIMU::getValues(float * values) {
     #warning Magnetometer calibration active: have you calibrated your device?
     values[6] = (values[6] - magn_off_x) / magn_scale_x;
     values[7] = (values[7] - magn_off_y) / magn_scale_y;
-    values[8] = (values[8] - magn_off_z) / magn_scale_z; 
+    values[8] = (values[8] - magn_off_z) / magn_scale_z;
   #endif
 }
 
 
+/**
+ * Computes gyro offsets
+*/
 void FreeIMU::zeroGyro() {
   const int totSamples = 3;
   int raw[9];
@@ -241,14 +251,14 @@ void FreeIMU::zeroGyro() {
 }
 
 
-// Quaternion implementation of the 'DCM filter' [Mayhony et al].  Incorporates the magnetic distortion
-// compensation algorithms from Sebastian Madgwick filter which eliminates the need for a reference
-// direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
-// axis only.
-//
-// See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
-//
-//=====================================================================================================
+/**
+ * Quaternion implementation of the 'DCM filter' [Mayhony et al].  Incorporates the magnetic distortion
+ * compensation algorithms from Sebastian Madgwick filter which eliminates the need for a reference
+ * direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
+ * axis only. 
+ * 
+ * See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+*/
 #if IS_9DOM()
 void  FreeIMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
 #elif IS_6DOM()
