@@ -3,9 +3,17 @@
  * Do not edit manually unless you know what you are doing.
 */
 
-const int magn_off_x = 77;
-const int magn_off_y = -31;
-const int magn_off_z = 30;
-const float magn_scale_x = 539.793096;
-const float magn_scale_y = 537.719324;
-const float magn_scale_z = 487.900942;
+const int acc_off_x = -122;
+const int acc_off_y = -50;
+const int acc_off_z = 1899;
+const float acc_scale_x = 7854.214369;
+const float acc_scale_y = 8289.764198;
+const float acc_scale_z = 8502.598820;
+
+
+const int magn_off_x = 62;
+const int magn_off_y = -34;
+const int magn_off_z = 18;
+const float magn_scale_x = 527.774875;
+const float magn_scale_y = 539.364299;
+const float magn_scale_z = 499.251625;

@@ -219,6 +219,13 @@ void FreeIMU::getValues(float * values) {
     }
   #endif
   
+  
+  // remove offsets and scale accelerometer (calibration)
+  values[0] = (values[0] - acc_off_x) / acc_scale_x;
+  values[1] = (values[1] - acc_off_y) / acc_scale_y;
+  values[2] = (values[2] - acc_off_z) / acc_scale_z;
+  
+  
   #if HAS_HMC5883L()
     magn.getValues(&values[6]);
     // calibration 
