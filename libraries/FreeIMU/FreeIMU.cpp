@@ -242,7 +242,7 @@ void FreeIMU::getValues(float * values) {
 */
 void FreeIMU::zeroGyro() {
   const int totSamples = 3;
-  int raw[9];
+  int raw[11];
   float tmpOffsets[] = {0,0,0};
   
   for (int i = 0; i < totSamples; i++){
