@@ -56,23 +56,20 @@ void loop() {
     else if(cmd=='b') {
       uint8_t count = serial_busy_wait();
       for(uint8_t i=0; i<count; i++) {
-        my3IMU.accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+        #if HAS_ITG3200()
+          my3IMU.acc.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
+          my3IMU.gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
+        #else // MPU6050
+          my3IMU.accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+        #endif
         writeArr(raw_values, 6, sizeof(int)); // writes accelerometer and gyro values
-        my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
-        writeArr(raw_values, 3, sizeof(int));
+        #if IS_9DOM()
+          my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
+          writeArr(raw_values, 3, sizeof(int));
+        #endif
         Serial.println();
       }
     }
-    /*else if(cmd=='b') {
-      uint8_t count = serial_busy_wait();
-      for(uint8_t i=0; i<count; i++) {
-        my3IMU.accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
-        writeArr(raw_values, 6, sizeof(int)); // writes accelerometer and gyro values
-        my3IMU.magn.getValues(&raw_values[0], &raw_values[1], &raw_values[2]);
-        writeArr(raw_values, 3, sizeof(int));
-        Serial.println();
-      }
-    }*/
     else if(cmd=='q') {
       uint8_t count = serial_busy_wait();
       for(uint8_t i=0; i<count; i++) {

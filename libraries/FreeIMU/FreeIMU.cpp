@@ -260,11 +260,11 @@ void FreeIMU::zeroGyro() {
 
 /**
  * Quaternion implementation of the 'DCM filter' [Mayhony et al].  Incorporates the magnetic distortion
- * compensation algorithms from Sebastian Madgwick filter which eliminates the need for a reference
+ * compensation algorithms from Sebastian Madgwick's filter which eliminates the need for a reference
  * direction of flux (bx bz) to be predefined and limits the effect of magnetic distortions to yaw
- * axis only. 
+ * axis only.
  * 
- * See: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
+ * @see: http://www.x-io.co.uk/node/8#open_source_ahrs_and_imu_algorithms
 */
 #if IS_9DOM()
 void  FreeIMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, float az, float mx, float my, float mz) {
@@ -386,7 +386,7 @@ void  FreeIMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, floa
 /**
  * Populates array q with a quaternion representing the IMU orientation with respect to the Earth
  * 
- * @param q the quaternion to populate using the q = [ ]
+ * @param q the quaternion to populate
 */
 void FreeIMU::getQ(float * q) {
   float val[9];
@@ -422,8 +422,9 @@ void FreeIMU::getQ(float * q) {
   q[3] = q3;
 }
 
+
 /**
- * Returns the Euler angles in radians defined with the Aerospace sequence.
+ * Returns the Euler angles in radians defined in the Aerospace sequence.
  * See Sebastian O.H. Madwick report "An efficient orientation filter for 
  * inertial and intertial/magnetic sensor arrays" Chapter 2 Quaternion representation
  * 
