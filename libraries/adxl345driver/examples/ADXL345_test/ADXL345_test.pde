@@ -5,7 +5,7 @@ ADXL345 accel;
 
 void setup(void){
   int x, y, z, i;
-  double xyz[3], gains[3], gains_orig[3];
+  float xyz[3];
 
   Serial.begin(9600);
   accel.init(ADXL345_ADDR_ALT_LOW);
@@ -26,44 +26,6 @@ void setup(void){
   Serial.println("");
   Serial.println("");
   
-  accel.getAxisGains(gains_orig);
-  Serial.println("gains_orig[]:");
-  for(i = 0; i < 3; i++){
-    Serial.print(gains_orig[i], 6);
-    Serial.print(" ");
-  }
-  Serial.println("");
-
-  gains[0] = .1;
-  gains[1] = 1.1;
-  gains[2] = 2.1;
-  accel.setAxisGains(gains);
-  accel.getAxisGains(gains);
-  Serial.println("set gains[]:");
-  for(i = 0; i < 3; i++){
-    Serial.print(gains[i]);
-    Serial.print(" ");
-  }
-  Serial.println("");
-
-  accel.setAxisGains(gains_orig);
-  accel.getAxisGains(gains);
-  Serial.println("original gains?");
-  for(i = 0; i < 3; i++){
-    Serial.print(gains[i], 6);
-    Serial.print(" ");
-  }
-  Serial.println("");
-    
-  accel.readAccel(&x, &y, &z);
-  Serial.print("XYZ COUNTS: ");
-  Serial.print(x, DEC);
-  Serial.print(" ");
-  Serial.print(y, DEC);
-  Serial.print(" ");
-  Serial.print(z, DEC);
-  Serial.println("");
-
   accel.get_Gxyz(xyz);
   Serial.print("XYZ Gs: ");
   for(i = 0; i<3; i++){
