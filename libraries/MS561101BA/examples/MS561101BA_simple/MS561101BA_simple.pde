@@ -53,10 +53,9 @@ void loop() {
   Serial.print(" degC pres: ");
   while(pression == NULL) {
     pression = baro.getPressure(MS561101BA_OSR_4096);
-    //Serial.println(baro.lastTempConv);
-    //Serial.println(baro.lastPresConv);
-    //Serial.println("aaa");
   }
   Serial.print(pression);
   Serial.println(" mbar");
 }
+
+

@@ -24,8 +24,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MS561101BA.h"
-#define EXTRA_PRECISION 5 // trick to add more precision to the pressure and temp readings
 #define CONVERSION_TIME 10000l // conversion time in microseconds
+
+/*
+void printLongLong(uint64_t n, uint8_t base) {
+  do {
+    uint64_t m = n;
+    n /= base;
+    char c = m - base * n;
+    c = c < 10 ? c + '0' : c + 'A' - 10;
+    Serial.print(c);
+  } while(n);
+  Serial.println();
+}
+*/
+
 
 MS561101BA::MS561101BA() {
   ;
@@ -48,25 +61,26 @@ void MS561101BA::init(uint8_t address) {
   #endif
  
   reset(); // reset the device to populate its internal PROM registers
-  delay(1000); // some safety time 
+  delay(1000); // some safety time
   readPROM(); // reads the PROM into object variables for later use
 }
 
 float MS561101BA::getPressure(uint8_t OSR) {
   // see datasheet page 7 for formulas
-  int32_t rawPress = rawPressure(OSR);
-  int64_t dT   = getDeltaTemp(OSR);
+  
+  int32_t dT = getDeltaTemp(OSR);
   if(dT == NULL) {
     return NULL;
   }
-  int64_t off  = (((int64_t)_C[1]) << 16) + ((_C[3] * dT) >> 7);
-  int64_t sens = (((int64_t)_C[0]) << 15) + ((_C[2] * dT) >> 8);
-  if(rawPress != NULL) {
-    return ((((rawPress * sens) >> 21) - off) >> (15-EXTRA_PRECISION)) / ((1<<EXTRA_PRECISION) * 100.0);
-  }
-  else {
+  
+  uint32_t rawPress = rawPressure(OSR);
+  if(rawPress == NULL) {
     return NULL;
   }
+  
+  int64_t off  = ((uint32_t)_C[1] <<16) + (((int64_t)dT * _C[3]) >> 7);
+  int64_t sens = ((uint32_t)_C[0] <<15) + (((int64_t)dT * _C[2]) >> 8);
+  return ((( (rawPress * sens ) >> 21) - off) >> 15) / 100.0;
 }
 
 float MS561101BA::getTemperature(uint8_t OSR) {
@@ -74,39 +88,43 @@ float MS561101BA::getTemperature(uint8_t OSR) {
   int64_t dT = getDeltaTemp(OSR);
   
   if(dT != NULL) {
-    return ((1<<EXTRA_PRECISION)*2000l + ((dT * _C[5]) >> (23-EXTRA_PRECISION))) / ((1<<EXTRA_PRECISION) * 100.0);
+    return (2000 + ((dT * _C[5]) >> 23)) / 100.0;
   }
   else {
     return NULL;
   }
 }
 
-int64_t MS561101BA::getDeltaTemp(uint8_t OSR) {
-  int32_t rawTemp = rawTemperature(OSR);
+int32_t MS561101BA::getDeltaTemp(uint8_t OSR) {
+  uint32_t rawTemp = rawTemperature(OSR);
   if(rawTemp != NULL) {
-    return rawTemp - (((int32_t)_C[4]) << 8);
+    return (int32_t)(rawTemp - ((uint32_t)_C[4] << 8));
   }
   else {
     return NULL;
   }
 }
 
-int32_t MS561101BA::rawPressure(uint8_t OSR) {
+uint32_t MS561101BA::rawPressure(uint8_t OSR) {
   unsigned long now = micros();
   if(lastPresConv != 0 && (now - lastPresConv) >= CONVERSION_TIME) {
     lastPresConv = 0;
-    return getConversion(MS561101BA_D1 + OSR);
+    pressCache = getConversion(MS561101BA_D1 + OSR);
+    return pressCache;
   }
   else {
     if(lastPresConv == 0 && lastTempConv == 0) {
       startConversion(MS561101BA_D1 + OSR);
       lastPresConv = now;
     }
+    else if(lastTempConv != 0) {
+      return pressCache;
+    }
     return NULL;
   }
 }
 
-int32_t MS561101BA::rawTemperature(uint8_t OSR) {
+uint32_t MS561101BA::rawTemperature(uint8_t OSR) {
   unsigned long now = micros();
   if(lastTempConv != 0 && (now - lastTempConv) >= CONVERSION_TIME) {
     lastTempConv = 0;
@@ -121,9 +139,7 @@ int32_t MS561101BA::rawTemperature(uint8_t OSR) {
     else if(lastPresConv != 0) { // there is a Pressure reading in process
       return tempCache;
     }
-    else {
-      return NULL;
-    }
+    return NULL;
   }
 }
 
@@ -136,8 +152,8 @@ void MS561101BA::startConversion(uint8_t command) {
   Wire.endTransmission();
 }
 
-unsigned long MS561101BA::getConversion(uint8_t command) {
-  unsigned long conversion = 0;
+uint32_t MS561101BA::getConversion(uint8_t command) {
+  union {uint32_t val; uint8_t raw[4]; } conversion;
   
   // start read sequence
   Wire.beginTransmission(_addr);
@@ -147,13 +163,15 @@ unsigned long MS561101BA::getConversion(uint8_t command) {
   Wire.beginTransmission(_addr);
   Wire.requestFrom(_addr, (uint8_t) MS561101BA_D1D2_SIZE);
   if(Wire.available()) {
-    conversion = Wire.read() * 65536 + Wire.read() * 256 + Wire.read();
+    conversion.raw[2] = Wire.read();
+    conversion.raw[1] = Wire.read();
+    conversion.raw[0] = Wire.read();
   }
   else {
-    conversion = -1;
+    conversion.val = -1;
   }
   
-  return conversion;
+  return conversion.val;
 }
 
 
@@ -190,3 +208,6 @@ void MS561101BA::reset() {
   Wire.write(MS561101BA_RESET);
   Wire.endTransmission();
 }
+
+
+

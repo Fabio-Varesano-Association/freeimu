@@ -40,7 +40,7 @@ int movavg_i=0;
 
 void setup() {
   Wire.begin();
-  Serial.begin(9600);
+  Serial.begin(115200);
   delay(1000);
 
   // Suppose that the CSB pin is connected to GND.

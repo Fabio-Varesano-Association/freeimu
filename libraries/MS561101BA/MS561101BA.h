@@ -69,19 +69,18 @@ class MS561101BA {
     void init(uint8_t addr);
     float getPressure(uint8_t OSR);
     float getTemperature(uint8_t OSR);
-    int64_t getDeltaTemp(uint8_t OSR);
-    int32_t rawPressure(uint8_t OSR);
-    int32_t rawTemperature(uint8_t OSR);
+    int32_t getDeltaTemp(uint8_t OSR);
+    uint32_t rawPressure(uint8_t OSR);
+    uint32_t rawTemperature(uint8_t OSR);
     int readPROM();
     void reset();
-    unsigned long lastPresConv, lastTempConv;
+    uint32_t lastPresConv, lastTempConv;
   private:
     void startConversion(uint8_t command);
-    unsigned long getConversion(uint8_t command);
+    uint32_t getConversion(uint8_t command);
     uint8_t _addr;
     uint16_t _C[MS561101BA_PROM_REG_COUNT];
-    //unsigned long lastPresConv, lastTempConv;
-    int32_t presCache, tempCache;
+    uint32_t pressCache, tempCache;
 };
 
 #endif // MS561101BA_h
