@@ -153,7 +153,7 @@ void MS561101BA::startConversion(uint8_t command) {
 }
 
 uint32_t MS561101BA::getConversion(uint8_t command) {
-  union {uint32_t val; uint8_t raw[4]; } conversion;
+  union {uint32_t val; uint8_t raw[4]; } conversion = {0};
   
   // start read sequence
   Wire.beginTransmission(_addr);
