@@ -1,7 +1,6 @@
 /*
 MS561101BA_altitude.pde - Computes altitude from sea level using pressure readings from the sensor.
 The algorithm uses the Hypsometric formula as explained in http://keisan.casio.com/has10/SpecExec.cgi?path=06000000.Science%2F02100100.Earth%20science%2F12000300.Altitude%20from%20atmospheric%20pressure%2Fdefault.xml&charset=utf-8
-TODO: The results are not that good. Suggestions on improvements welcome.
 
 Copyright (C) 2011 Fabio Varesano <fvaresano@yahoo.it>
 
