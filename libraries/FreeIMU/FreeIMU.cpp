@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #include "WireUtils.h"
 #include "DebugUtils.h"
 
+//#include "vector_math.h"
 
 FreeIMU::FreeIMU() {
   #if HAS_ADXL345()
@@ -176,15 +177,13 @@ void FreeIMU::getRawValues(int * raw_values) {
   #endif
   
   #if HAS_MS5611()
-    float temp, press;
-    temp = baro.getTemperature(MS561101BA_OSR_4096);
-    if(temp != NULL) {
-      raw_values[9] = temp * 100;
-    }
-    press = baro.getPressure(MS561101BA_OSR_4096);
-    if(press != NULL) {
-      raw_values[10] = press * 100;
-    }
+    int temp, press;
+    
+    //TODO: possible loss of precision
+    temp = baro.rawTemperature(MS561101BA_OSR_4096);
+    raw_values[9] = temp;
+    press = baro.rawPressure(MS561101BA_OSR_4096);
+    raw_values[10] = press;
   # endif
 }
 
@@ -220,6 +219,7 @@ void FreeIMU::getValues(float * values) {
   #endif
   
   
+  #warning Accelerometer calibration active: have you calibrated your device?
   // remove offsets and scale accelerometer (calibration)
   values[0] = (values[0] - acc_off_x) / acc_scale_x;
   values[1] = (values[1] - acc_off_y) / acc_scale_y;
@@ -423,6 +423,102 @@ void FreeIMU::getQ(float * q) {
 }
 
 
+#if HAS_MS5611()
+
+const float def_sea_press = 1013.25;
+
+/**
+ * Returns an altitude estimate from baromether readings only using sea_press as current sea level pressure
+*/
+float FreeIMU::getBaroAlt(float sea_press) {
+  float temp = baro.getTemperature(MS561101BA_OSR_4096);
+  float press = baro.getPressure(MS561101BA_OSR_4096);
+  return ((pow((sea_press / press), 1/5.257) - 1.0) * (temp + 273.15)) / 0.0065;
+}
+
+/**
+ * Returns an altitude estimate from baromether readings only using a default sea level pressure
+*/
+float FreeIMU::getBaroAlt() {
+  return getBaroAlt(def_sea_press);
+}
+
+
+
+// void FreeIMU::gravityCompensateAcc(float * acc, ) {
+//   
+// }
+// 
+// 
+// // complementary filter from MultiWii project v1.9
+// 
+// #define UPDATE_INTERVAL 25000    // 40hz update rate (20hz LPF on acc)
+// #define INIT_DELAY      4000000  // 4 sec initialization delay
+// #define Kp1 0.55f                // PI observer velocity gain 
+// #define Kp2 1.0f                 // PI observer position gain
+// #define Ki  0.001f               // PI observer integral gain (bias cancellation)
+// #define dt  (UPDATE_INTERVAL / 1000000.0f)
+// 
+// /**
+// * Returns an altitude estimate from baromether fused with accelerometer readings
+// */
+// float FreeIMU::getEstimatedAlt() {
+//   static uint8_t inited = 0;
+//   static int16_t AltErrorI = 0;
+//   static float AccScale  = 0.0f;
+//   static uint32_t deadLine = INIT_DELAY;
+//   int16_t AltError;
+//   int16_t InstAcc;
+//   int16_t Delta;
+//   static int32_t  BaroAlt;
+//   static int32_t  EstVelocity;
+//   static int32_t  EstAlt;
+//   
+//   long currentTime = micros();
+//   
+//   if (currentTime < deadLine) return BaroAlt;
+//   deadLine = currentTime + UPDATE_INTERVAL; 
+//   // Soft start
+// 
+//   if (!inited) {
+//     inited = 1;
+//     EstAlt = getBaroAlt();
+//     EstVelocity = 0;
+//     AltErrorI = 0;
+//   }
+//   // Estimation Error
+//   AltError = getBaroAlt() - EstAlt;
+//   AltErrorI += AltError;
+//   AltErrorI = constrain(AltErrorI,-25000,+25000);
+//   // Gravity vector correction and projection to the local Z
+//   //InstAcc = (accADC[YAW] * (1 - acc_1G * InvSqrt(isq(accADC[ROLL]) + isq(accADC[PITCH]) + isq(accADC[YAW])))) * AccScale + (Ki) * AltErrorI;
+//   #if defined(TRUSTED_ACCZ)
+//     InstAcc = (accADC[YAW] * (1 - acc_1G * InvSqrt(isq(accADC[ROLL]) + isq(accADC[PITCH]) + isq(accADC[YAW])))) * AccScale +  AltErrorI / 1000;
+//   #else
+//     InstAcc = AltErrorI / 1000;
+//   #endif
+//   
+//   // Integrators
+//   Delta = InstAcc * dt + (Kp1 * dt) * AltError;
+//   EstAlt += (EstVelocity/5 + Delta) * (dt / 2) + (Kp2 * dt) * AltError;
+//   EstVelocity += Delta*10;
+//   
+//   
+//   vmath::quat<float> ciao = vmath::quat<float>(0.0, 0.1, 0.2, 0.3);
+//   vmath::quat<float> ciao2;
+//   
+//   ciao = ciao * ciao2;
+//   
+//   
+//   Serial.print(":::");
+//   Serial.println(ciao.w);
+//   
+//   return EstAlt;
+// }
+
+#endif
+
+
 /**
  * Returns the Euler angles in radians defined in the Aerospace sequence.
  * See Sebastian O.H. Madwick report "An efficient orientation filter for 
@@ -520,3 +616,6 @@ float invSqrt(float number) {
   y = y * ( f - ( x * y * y ) );
   return y;
 }
+
+
+

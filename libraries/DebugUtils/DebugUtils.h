@@ -45,5 +45,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #define DEBUG_PRINT(str)
 #endif
 
+/*
+int availableMemory() {
+  int size = 2048; // Use 2048 with ATmega328
+  byte *buf;
+
+  while ((buf = (byte *) malloc(--size)) == NULL)
+    ;
+
+  free(buf);
+
+  return size;
+}
+*/
+
 
 #endif //DEBUGUTILS_H

@@ -68,13 +68,13 @@ void MS561101BA::init(uint8_t address) {
 float MS561101BA::getPressure(uint8_t OSR) {
   // see datasheet page 7 for formulas
   
-  int32_t dT = getDeltaTemp(OSR);
-  if(dT == NULL) {
+  uint32_t rawPress = rawPressure(OSR);
+  if(rawPress == NULL) {
     return NULL;
   }
   
-  uint32_t rawPress = rawPressure(OSR);
-  if(rawPress == NULL) {
+  int32_t dT = getDeltaTemp(OSR);
+  if(dT == NULL) {
     return NULL;
   }
   
@@ -105,22 +105,21 @@ int32_t MS561101BA::getDeltaTemp(uint8_t OSR) {
   }
 }
 
+//TODO: avoid duplicated code between rawPressure and rawTemperature methods
+//TODO: possible race condition between readings.. serious headache doing this.. help appreciated!
+
 uint32_t MS561101BA::rawPressure(uint8_t OSR) {
   unsigned long now = micros();
   if(lastPresConv != 0 && (now - lastPresConv) >= CONVERSION_TIME) {
     lastPresConv = 0;
     pressCache = getConversion(MS561101BA_D1 + OSR);
-    return pressCache;
   }
   else {
     if(lastPresConv == 0 && lastTempConv == 0) {
       startConversion(MS561101BA_D1 + OSR);
       lastPresConv = now;
     }
-    else if(lastTempConv != 0) {
-      return pressCache;
-    }
-    return NULL;
+    return pressCache;
   }
 }
 
@@ -129,18 +128,14 @@ uint32_t MS561101BA::rawTemperature(uint8_t OSR) {
   if(lastTempConv != 0 && (now - lastTempConv) >= CONVERSION_TIME) {
     lastTempConv = 0;
     tempCache = getConversion(MS561101BA_D2 + OSR);
-    return tempCache;
   }
   else {
-    if(lastTempConv == 0 && lastPresConv == 0) {
+    if(lastTempConv == 0 && lastPresConv == 0) { // no conversions in progress
       startConversion(MS561101BA_D2 + OSR);
       lastTempConv = now;
     }
-    else if(lastPresConv != 0) { // there is a Pressure reading in process
-      return tempCache;
-    }
-    return NULL;
   }
+  return tempCache;
 }
 
 

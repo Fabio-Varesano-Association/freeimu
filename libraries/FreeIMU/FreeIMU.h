@@ -116,7 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if HAS_MS5611()
   #include <MS561101BA.h>
   #define FIMU_BARO_ADDR MS561101BA_ADDR_CSB_LOW
-  //#define FIMU_ACC_ADDR MS561101BA_ADDR_CSB_HIGH
+  //#define FIMU_BARO_ADDR MS561101BA_ADDR_CSB_HIGH
 #endif
 
 #if HAS_ITG3200()
@@ -159,6 +159,12 @@ class FreeIMU
     void getYawPitchRoll(float * ypr);
     void getEulerRad(float * angles);
     void getYawPitchRollRad(float * ypr);
+    #if HAS_MS5611()
+      float getBaroAlt();
+      float getBaroAlt(float sea_press);
+      //float getEstimatedAlt();
+      //float getEstimatedAlt(float sea_press);
+    #endif
     
     // we make them public so that users can interact directly with device classes
     #if HAS_ADXL345()

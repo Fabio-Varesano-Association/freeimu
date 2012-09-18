@@ -39,7 +39,7 @@ float movavg_buff[MOVAVG_SIZE];
 int movavg_i=0;
 
 const float sea_press = 1013.25;
-float press, temp;
+float press, temperature;
 
 void setup() {
   Wire.begin();
@@ -59,22 +59,17 @@ void setup() {
 
 void loop() {
   Serial.print(" temp: ");
-  float temperature = baro.getTemperature(MS561101BA_OSR_4096);
-  if(temperature) {
-    temp = temperature;
-  }
-  Serial.print(temp);
+  temperature = baro.getTemperature(MS561101BA_OSR_4096);
+  Serial.print(temperature);
   Serial.print(" degC pres: ");
+  
   press = baro.getPressure(MS561101BA_OSR_4096);
-  if(press!=NULL) {
-    pushAvg(press);
-  }
+  pushAvg(press);
   press = getAvg(movavg_buff, MOVAVG_SIZE);
   Serial.print(press);
   Serial.print(" mbar altitude: ");
-  Serial.print(getAltitude(press, temp));
+  Serial.print(getAltitude(press, temperature));
   Serial.println(" m");
-  //delay(100);
 }
 
 float getAltitude(float press, float temp) {

@@ -61,6 +61,8 @@ if ser.isOpen():
   print "Arduino serial port opened correctly"
 # we rely on the unhandled serial exception which will stop the program in case of problems during serial opening
 
+time.sleep(5)
+
 ser.write('v') # ask version
 print "\nFreeIMU library version informations:", 
 print ser.readline()
