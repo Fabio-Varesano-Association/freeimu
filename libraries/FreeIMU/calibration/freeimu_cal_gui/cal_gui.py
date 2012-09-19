@@ -24,6 +24,13 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     
     # data storages
     self.acc_data = [[], [], []]
+    acc_range = 20000
+    self.accXY.setXRange(-acc_range, acc_range)
+    self.accXY.setYRange(-acc_range, acc_range)
+    self.accYZ.setXRange(-acc_range, acc_range)
+    self.accYZ.setYRange(-acc_range, acc_range)
+    self.accZX.setXRange(-acc_range, acc_range)
+    self.accZX.setYRange(-acc_range, acc_range)
     
 
   def set_status(self, status):
@@ -82,9 +89,9 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
       for i in range(3):
         self.acc_data[i].append(elem[i])
         
-    self.accXY.plot(self.acc_data[0][:-25], self.acc_data[1][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
-    self.accYZ.plot(self.acc_data[1][:-25], self.acc_data[2][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
-    self.accZX.plot(self.acc_data[2][:-25], self.acc_data[0][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
+    self.accXY.plot(x = self.acc_data[0][:-25], y = self.acc_data[1][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
+    self.accYZ.plot(x = self.acc_data[1][:-25], y = self.acc_data[2][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
+    self.accZX.plot(x = self.acc_data[2][:-25], y = self.acc_data[0][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
 
 
 class SerialWorker(QThread):
