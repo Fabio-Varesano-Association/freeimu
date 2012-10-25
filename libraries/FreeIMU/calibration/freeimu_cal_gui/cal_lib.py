@@ -55,17 +55,32 @@ def calibrate(x, y, z):
   return (offsets, scale)
 
 
-if __name__ == "__main__":
-  acc_f = open("acc.txt", 'r')
-  acc_x = []
-  acc_y = []
-  acc_z = []
-  for line in acc_f:
+def calibrate_from_file(file_name):
+  samples_f = open(file_name, 'r')
+  samples_x = []
+  samples_y = []
+  samples_z = []
+  for line in samples_f:
     reading = line.split()
-    acc_x.append(int(reading[0]))
-    acc_y.append(int(reading[1]))
-    acc_z.append(int(reading[2]))
+    samples_x.append(int(reading[0]))
+    samples_y.append(int(reading[1]))
+    samples_z.append(int(reading[2]))
 
-  (offsets, scale) = calibrate(numpy.array(acc_x), numpy.array(acc_y), numpy.array(acc_z))
+  return calibrate(numpy.array(samples_x), numpy.array(samples_y), numpy.array(samples_z))
+
+
+if __name__ == "__main__":
+  
+  print "Calibrating from acc.txt"
+  (offsets, scale) = calibrate_from_file("acc.txt")
+  print "Offsets:"
   print offsets
+  print "Scales:"
+  print scale
+  
+  print "Calibrating from magn.txt"
+  (offsets, scale) = calibrate_from_file("magn.txt")
+  print "Offsets:"
+  print offsets
+  print "Scales:"
   print scale
