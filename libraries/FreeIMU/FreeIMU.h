@@ -95,6 +95,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Arduino.h"
 #include "calibration/calibration.h"
 
+#ifndef CALIBRATION_H
+#include <EEPROM.h>
+#endif
+
+#define FREEIMU_EEPROM_BASE 0x0A
+#define FREEIMU_EEPROM_SIGNATURE 0x19
+
 //#if FREEIMU_VER <= 3
 #if HAS_ADXL345()
   #include <ADXL345.h>
@@ -151,6 +158,9 @@ class FreeIMU
     #else
     void init(int accgyro_addr, bool fastmode);
     #endif
+    #ifndef CALIBRATION_H
+    void calLoad();
+    #endif
     void zeroGyro();
     void getRawValues(int * raw_values);
     void getValues(float * values);
@@ -165,6 +175,7 @@ class FreeIMU
       //float getEstimatedAlt();
       //float getEstimatedAlt(float sea_press);
     #endif
+    void gravityCompensateAcc(float * acc, float * q);
     
     // we make them public so that users can interact directly with device classes
     #if HAS_ADXL345()

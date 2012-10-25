@@ -5,6 +5,7 @@
 #include <MS561101BA.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
+#include <EEPROM.h>
 
 //#define DEBUG
 #include "DebugUtils.h"

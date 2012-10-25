@@ -1,14 +1,16 @@
 import sys
-from PyQt4.QtGui import QApplication, QDialog, QMainWindow
+from PyQt4.QtGui import QApplication, QDialog, QMainWindow, QCursor
 from ui_freeimu_cal import Ui_FreeIMUCal
-from PyQt4.QtCore import QObject, pyqtSlot, QThread, SIGNAL
+from PyQt4.QtCore import Qt,QObject, pyqtSlot, QThread, QSettings, SIGNAL
 import numpy as np
 import serial, time
 from struct import unpack
 from binascii import unhexlify
 from subprocess import call
+import pyqtgraph.opengl as gl
+import cal_lib, numpy
 
-
+acc_file_name = "acc.txt"
 
 class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
   def __init__(self):
@@ -16,15 +18,20 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
 
     # Set up the user interface from Designer.
     self.setupUi(self)
-
-    # Connect up the buttons.
+    
+    # load user settings
+    self.settings = QSettings("FreeIMU Calibration Application", "Fabio Varesano")
+    # restore previous serial port used
+    self.serialPortEdit.setText(self.settings.value("calgui/serialPortEdit", "").toString())
+    
+    # Connect up the buttons to their functions
     self.connectButton.clicked.connect(self.serial_connect)
     self.samplingToggleButton.clicked.connect(self.sampling_start)
-    
+    self.set_status("Disconnected")
     
     # data storages
     self.acc_data = [[], [], []]
-    acc_range = 20000
+    acc_range = 15000
     self.accXY.setXRange(-acc_range, acc_range)
     self.accXY.setYRange(-acc_range, acc_range)
     self.accYZ.setXRange(-acc_range, acc_range)
@@ -32,84 +39,204 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.accZX.setXRange(-acc_range, acc_range)
     self.accZX.setYRange(-acc_range, acc_range)
     
+    
+    self.acc3D.opts['distance'] = 20
+    self.acc3D.show()
+
+    ax = gl.GLAxisItem()
+    ax.setSize(5,5,5)
+    self.acc3D.addItem(ax)
+
+    #b = gl.GLBoxItem()
+    #self.acc3D.addItem(b)
+
+    #ax2 = gl.GLAxisItem()
+    #ax2.setParentItem(b)
+
+    #b.translate(1,1,1)
+    
 
   def set_status(self, status):
     self.statusbar.showMessage(self.tr(status))
 
   def serial_connect(self):
     self.serial_port = str(self.serialPortEdit.text())
+    # save serial value to user settings
+    self.settings.setValue("calgui/serialPortEdit", self.serial_port)
+    
+    self.connectButton.setEnabled(False)
+    # waiting mouse cursor
+    QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+    
     print "connecting to " + self.serial_port
     
     # TODO: serial port field input validation!
     
-    self.ser = serial.Serial(
-      port= self.serial_port,
-      baudrate=115200,
-      parity=serial.PARITY_NONE,
-      stopbits=serial.STOPBITS_ONE,
-      bytesize=serial.EIGHTBITS
-    )
-    
-    if self.ser.isOpen():
-      print "Arduino serial port opened correctly"
-      self.set_status("Connection Successfull. Awaiting for Arduino reset...")
+    try:
+      self.ser = serial.Serial(
+        port= self.serial_port,
+        baudrate=115200,
+        parity=serial.PARITY_NONE,
+        stopbits=serial.STOPBITS_ONE,
+        bytesize=serial.EIGHTBITS
+      )
+      
+      if self.ser.isOpen():
+        print "Arduino serial port opened correctly"
+        self.set_status("Connection Successfull. Awaiting for Arduino reset...")
 
-      # wait for arduino reset on serial open
-      time.sleep(3)
+        # wait for arduino reset on serial open
+        time.sleep(3)
+        
+        self.ser.write('v') # ask version
+        self.set_status("Connected to: " + self.ser.readline())
+        
+        self.connectButton.setText("Disconnect")
+        self.connectButton.clicked.connect(self.serial_disconnect)
+        self.serialPortEdit.setEnabled(False)
+        
+        self.samplingToggleButton.setEnabled(True)
+    except serial.serialutil.SerialException, e:
+      self.connectButton.setEnabled(True)
+      self.set_status("Impossible to connect: " + str(e))
       
-      self.ser.write('v') # ask version
-      self.set_status("Connected to: " + self.ser.readline())
-      
-      self.connectButton.setText("Disconnect")
-      self.connectButton.clicked.connect(self.serial_disconnect)
-      self.serialPortEdit.setReadOnly(True)
-      
-      self.samplingToggleButton.setEnabled(True)
+    # restore mouse cursor
+    QApplication.restoreOverrideCursor()
+    self.connectButton.setEnabled(True)
+
     
   def serial_disconnect(self):
     print "Disconnecting from " + self.serial_port
     self.ser.close()
     self.set_status("Disconnected")
-    self.serialPortEdit.setReadOnly(False)
-      
+    self.serialPortEdit.setEnabled(True)
+    
+    self.connectButton.setText("Connect")
+    self.connectButton.clicked.disconnect(self.serial_disconnect)
+    self.connectButton.clicked.connect(self.serial_connect)
+    
+    self.samplingToggleButton.setEnabled(False)
       
   def sampling_start(self):
+    self.acc_file = open(acc_file_name, 'w')
+    
     self.serWorker = SerialWorker(ser = self.ser)
     self.connect(self.serWorker, SIGNAL("new_data(PyQt_PyObject)"), self.newData)
     self.serWorker.start()
+    print "Starting SerialWorker"
+    self.samplingToggleButton.setText("Stop Sampling")
+    
+    self.samplingToggleButton.clicked.disconnect(self.sampling_start)
+    self.samplingToggleButton.clicked.connect(self.sampling_end)
     
   def sampling_end(self):
+    self.serWorker.exiting = True
     self.serWorker.quit()
+    self.serWorker.wait()
+    self.samplingToggleButton.setText("Start Sampling")
+    self.samplingToggleButton.clicked.disconnect(self.sampling_end)
+    self.samplingToggleButton.clicked.connect(self.sampling_start)
+    #self.acc_file.close()
+    
+    self.calibrateButton.setEnabled(True)
+    self.calibrateButton.clicked.connect(self.calibrate)
+    
+  
+  def calibrate(self):
+    self.acc_file.close()
+    acc_f = open(acc_file_name, 'r')
+    acc_x = []
+    acc_y = []
+    acc_z = []
+    for line in acc_f:
+      reading = line.split()
+      acc_x.append(int(reading[0]))
+      acc_y.append(int(reading[1]))
+      acc_z.append(int(reading[2]))
+    
+    (self.acc_offset, self.acc_scale) = cal_lib.calibrate(numpy.array(acc_x), numpy.array(acc_y), numpy.array(acc_z))
+    
+    # show calibrated tab
+    self.tabWidget.setCurrentIndex(1)
+    
+    self.calRes_acc_OSx.setText(str(self.acc_offset[0]))
+    self.calRes_acc_OSy.setText(str(self.acc_offset[1]))
+    self.calRes_acc_OSz.setText(str(self.acc_offset[2]))
+    
+    self.calRes_acc_SCx.setText(str(self.acc_scale[0]))
+    self.calRes_acc_SCy.setText(str(self.acc_scale[1]))
+    self.calRes_acc_SCz.setText(str(self.acc_scale[2]))
+    
+    #enable calibration buttons to activate storing functions
+    self.saveCalibrationHeaderButton.setEnabled(True)
+    self.saveCalibrationHeaderButton.clicked.connect(self.save_calibration_header)
+    
+    self.saveCalibrationEEPROMButton.setEnabled(True)
+    self.saveCalibrationEEPROMButton.clicked.connect(self.save_calibration_eeprom)
+    
+    
+  def save_calibration_header(self):
+    text = """
+/**
+ * FreeIMU calibration header. Automatically generated by octave AccMagnCalib.m.
+ * Do not edit manually unless you know what you are doing.
+*/
+
+
+#define CALIBRATION_H
+
+const int acc_off_x = %d;
+const int acc_off_y = %d;
+const int acc_off_z = %d;
+const float acc_scale_x = %f;
+const float acc_scale_y = %f;
+const float acc_scale_z = %f;
+"""
+    """
+    const int magn_off_x = %d;
+    const int magn_off_y = %d;
+    const int magn_off_z = %d;
+    const float magn_scale_x = %f;
+    const float magn_scale_y = %f;
+    const float magn_scale_z = %f;
+    """
+    print text % (self.acc_offset[0], self.acc_offset[1], self.acc_offset[2])
+  
+  def save_calibration_eeprom(self):
+    print "gatto"
 
   def newData(self, data):
-    print "new data!"
-    print len(self.acc_data[0])
-    for elem in data:
-      print elem
-      for i in range(3):
-        self.acc_data[i].append(elem[i])
-        
-    self.accXY.plot(x = self.acc_data[0][:-25], y = self.acc_data[1][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
-    self.accYZ.plot(x = self.acc_data[1][:-25], y = self.acc_data[2][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
-    self.accZX.plot(x = self.acc_data[2][:-25], y = self.acc_data[0][:-25]) #pen=None, symbol='t', symbolPen=None, symbolSize=10, symbolBrush=(100, 100, 255, 50))
-
+    for reading in data:
+      readings_line = "%d %d %d\r\n" % (reading[0], reading[1], reading[2])
+      self.acc_file.write(readings_line)
+    
+    # only display last reading in burst
+    for i in range(3):
+      self.acc_data[i].append(reading[i])
+      
+    self.accXY.plot(x = self.acc_data[0], y = self.acc_data[1], clear = True, pen='r')
+    self.accYZ.plot(x = self.acc_data[1], y = self.acc_data[2], clear = True, pen='g')
+    self.accZX.plot(x = self.acc_data[2], y = self.acc_data[0], clear = True, pen='b')
+    
+    point3D = [{'pos': (reading[0],reading[1],reading[2]), 'size':0.5, 'color':(1.0, 0.0, 0.0, 0.5)}]
+    
+    #sp = gl.GLScatterPlotItem(point3D)
+    #self.acc3D.addItem(sp)
+    
 
 class SerialWorker(QThread):
   def __init__(self, parent = None, ser = None):
     QThread.__init__(self, parent)
     self.exiting = False
     self.ser = ser
-    print "ciao"
     
   def run(self):
     print "sampling start.."
-    count = 5
+    count = 30
     in_values = 9
-    delay = 0.5
     buff = []
     buff_line = [0.0 for i in range(in_values)]
     while not self.exiting:
-      time.sleep(delay)
       self.ser.write('b')
       self.ser.write(chr(count))
       for j in range(count):
@@ -118,13 +245,17 @@ class SerialWorker(QThread):
         self.ser.read(2) # consumes remaining '\r\n'
         buff.append(list(buff_line))
       self.emit(SIGNAL("new_data(PyQt_PyObject)"), buff)
-      #print buff
+      buff = []
+      print ".",
+    return 
   
   def __del__(self):
     self.exiting = True
     self.wait()
-
-
+    print "SerialWorker exits.."
+  
+  #def quit(self):
+    #self.exiting = True
 
 
 app = QApplication(sys.argv)

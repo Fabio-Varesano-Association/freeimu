@@ -159,8 +159,58 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
     
   // zero gyro
   zeroGyro();
- 
+  
+  #ifndef CALIBRATION_H
+  // load calibration from eeprom
+  calLoad();
+  #endif
 }
+
+#ifndef CALIBRATION_H
+
+int acc_off_x = 0;
+int acc_off_y = 0;
+int acc_off_z = 0;
+float acc_scale_x = 1;
+float acc_scale_y = 1;
+float acc_scale_z = 1;
+
+
+int magn_off_x = 0;
+int magn_off_y = 0;
+int magn_off_z = 0;
+float magn_scale_x = 1;
+float magn_scale_y = 1;
+float magn_scale_z = 1;
+
+void eeprom_read_var(uint8_t size, byte * var) {
+  static uint8_t location = FREEIMU_EEPROM_BASE + 1; // assuming ordered reads
+  for(uint8_t i = 0; i<size; i++) {
+    var[i] = EEPROM.read(location);
+  }
+  location += size;
+}
+
+void FreeIMU::calLoad() {
+  if(EEPROM.read(FREEIMU_EEPROM_BASE) == FREEIMU_EEPROM_SIGNATURE) { // check if signature is ok so we have good data
+    eeprom_read_var(sizeof(acc_off_x), (byte *) &acc_off_x);
+    eeprom_read_var(sizeof(acc_off_y), (byte *) &acc_off_y);
+    eeprom_read_var(sizeof(acc_off_z), (byte *) &acc_off_z);
+    
+    eeprom_read_var(sizeof(acc_scale_x), (byte *) &acc_scale_x);
+    eeprom_read_var(sizeof(acc_scale_y), (byte *) &acc_scale_y);
+    eeprom_read_var(sizeof(acc_scale_z), (byte *) &acc_scale_z);
+    
+    eeprom_read_var(sizeof(magn_off_x), (byte *) &magn_off_x);
+    eeprom_read_var(sizeof(magn_off_y), (byte *) &magn_off_y);
+    eeprom_read_var(sizeof(magn_off_z), (byte *) &magn_off_z);
+    
+    eeprom_read_var(sizeof(magn_scale_x), (byte *) &magn_scale_x);
+    eeprom_read_var(sizeof(magn_scale_y), (byte *) &magn_scale_y);
+    eeprom_read_var(sizeof(magn_scale_z), (byte *) &magn_scale_z);
+  }
+}
+#endif
 
 /**
  * Populates raw_values with the raw_values from the sensors
@@ -444,10 +494,24 @@ float FreeIMU::getBaroAlt() {
 }
 
 
-
-// void FreeIMU::gravityCompensateAcc(float * acc, ) {
-//   
-// }
+/**
+ * Compensates the accelerometer readings in the 3D vector acc expressed in the sensor frame for gravity
+ * @param acc the accelerometer readings to compensate for gravity
+ * @param q the quaternion orientation of the sensor board with respect to the world
+*/
+void FreeIMU::gravityCompensateAcc(float * acc, float * q) {
+  float g[3];
+  
+  // get expected direction of gravity in the sensor frame
+  g[0] = 2 * (q[1] * q[3] - q[0] * q[2]);
+  g[1] = 2 * (q[0] * q[1] + q[2] * q[3]);
+  g[2] = q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3];
+  
+  // compensate accelerometer readings with the expected direction of gravity
+  acc[0] = acc[0] - g[0];
+  acc[1] = acc[1] - g[1];
+  acc[2] = acc[2] - g[2];
+}
 // 
 // 
 // // complementary filter from MultiWii project v1.9

@@ -15,6 +15,7 @@
 #include "CommunicationUtils.h"
 #include "FreeIMU.h"
 #include <Wire.h>
+#include <EEPROM.h>
 
 
 float q[4];
@@ -70,12 +71,20 @@ void loop() {
         Serial.println();
       }
     }
-    else if(cmd=='q') {
+    else if(cmd == 'q') {
       uint8_t count = serial_busy_wait();
       for(uint8_t i=0; i<count; i++) {
         my3IMU.getQ(q);
         serialPrintFloatArr(q, 4);
         Serial.println("");
+      }
+    }
+    else if(cmd == 'c') {
+      const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
+      while(Serial.available() < eepromsize) ; // wait until all calibration data are received
+      EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
+      for(uint8_t i = 1; i<(eepromsize + 1); i++) {
+        EEPROM.write(FREEIMU_EEPROM_BASE + i, Serial.read());
       }
     }
     else if(cmd == 'd') { // debugging outputs
@@ -104,6 +113,6 @@ char serial_busy_wait() {
   while(!Serial.available()) {
     ; // do nothing until ready
   }
-  Serial.read();
+  return Serial.read();
 }
 

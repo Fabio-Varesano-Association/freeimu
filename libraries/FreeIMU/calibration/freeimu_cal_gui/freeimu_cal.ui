@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>801</width>
+    <height>644</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -78,27 +78,29 @@
        </property>
       </spacer>
      </item>
+     <item row="0" column="8">
+      <widget class="QPushButton" name="calibrateButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Run calibration algorithm over the data collected</string>
+       </property>
+       <property name="text">
+        <string>Calibrate</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="1">
       <widget class="QLineEdit" name="serialPortEdit"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="connectButton">
-       <property name="text">
-        <string>Connect</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
      </item>
      <item row="0" column="6">
       <widget class="QPushButton" name="samplingToggleButton">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Toggle Start/Stop sampling of sensor data from the IMU</string>
        </property>
        <property name="text">
         <string>Start Sampling</string>
@@ -114,66 +116,283 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="7">
-      <widget class="QPushButton" name="pushButton">
-       <property name="enabled">
-        <bool>false</bool>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="connectButton">
+       <property name="toolTip">
+        <string>Connect or Disconnect from the Arduino</string>
        </property>
        <property name="text">
-        <string>Calibrate</string>
+        <string>Connect</string>
        </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="7">
+      <widget class="QComboBox" name="comboBox">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Calibration Algorithm used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Ellipsoid to Sphere</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="gridLayoutWidget_2">
+   <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>30</y>
       <width>801</width>
-      <height>221</height>
+      <height>571</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="PlotWidget" name="acc3D"/>
-     </item>
-     <item row="0" column="1">
-      <widget class="PlotWidget" name="magn3D"/>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QWidget" name="gridLayoutWidget_3">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>260</y>
-      <width>801</width>
-      <height>301</height>
-     </rect>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="1" column="0">
-      <widget class="PlotWidget" name="accYZ"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="PlotWidget" name="accZX"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="PlotWidget" name="magnYZ"/>
-     </item>
-     <item row="0" column="0">
-      <widget class="PlotWidget" name="accXY"/>
-     </item>
-     <item row="0" column="2">
-      <widget class="PlotWidget" name="magnXY"/>
-     </item>
-     <item row="1" column="3">
-      <widget class="PlotWidget" name="magnZX"/>
-     </item>
-     <item row="0" column="1">
-      <layout class="QFormLayout" name="formLayout">
+    <widget class="QWidget" name="uncalibratedTab">
+     <attribute name="title">
+      <string>Uncalibrated</string>
+     </attribute>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>791</width>
+        <height>251</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetNoConstraint</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="GLViewWidget" name="acc3D"/>
+       </item>
+       <item row="0" column="1">
+        <widget class="GLViewWidget" name="acc3D_3"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>250</y>
+        <width>791</width>
+        <height>291</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="1" column="0">
+        <widget class="PlotWidget" name="accYZ"/>
+       </item>
+       <item row="1" column="1">
+        <widget class="PlotWidget" name="accZX"/>
+       </item>
+       <item row="1" column="2">
+        <widget class="PlotWidget" name="magnYZ"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="PlotWidget" name="accXY"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="PlotWidget" name="magnXY"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="PlotWidget" name="magnZX"/>
+       </item>
+       <item row="0" column="1">
+        <layout class="QFormLayout" name="formLayout">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Offset X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Offset Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Offset Z</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_4"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_5"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_3"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_6"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Scale X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Scale Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Scale Z</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="3">
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetNoConstraint</enum>
+         </property>
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Offset X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_7"/>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Offset Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Offset Z</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_8">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_9"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit_10"/>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_11"/>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_12"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Scale X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Scale Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Scale Z</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="calibratedTab">
+     <attribute name="title">
+      <string>Calibrated</string>
+     </attribute>
+     <widget class="GLViewWidget" name="acc3D_2">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>110</y>
+        <width>393</width>
+        <height>249</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>537</x>
+        <y>150</y>
+        <width>231</width>
+        <height>154</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_3">
        <property name="sizeConstraint">
         <enum>QLayout::SetNoConstraint</enum>
        </property>
@@ -181,31 +400,24 @@
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
        <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="label_14">
          <property name="text">
           <string>Offset X</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="calRes_acc_OSx"/>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="label_15">
          <property name="text">
           <string>Offset Y</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Offset Z</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_2">
+        <widget class="QLineEdit" name="calRes_acc_OSy">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -214,119 +426,100 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_4"/>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_5"/>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_3"/>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_6"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Scale X</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Scale Y</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Scale Z</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="3">
-      <layout class="QFormLayout" name="formLayout_2">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetNoConstraint</enum>
-       </property>
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>Offset X</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit_7"/>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>Offset Y</string>
-         </property>
-        </widget>
-       </item>
        <item row="2" column="0">
-        <widget class="QLabel" name="label_10">
+        <widget class="QLabel" name="label_16">
          <property name="text">
           <string>Offset Z</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_8">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_9"/>
-       </item>
-       <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_10"/>
-       </item>
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="lineEdit_11"/>
-       </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_12"/>
+        <widget class="QLineEdit" name="calRes_acc_OSz"/>
        </item>
        <item row="3" column="0">
-        <widget class="QLabel" name="label_11">
+        <widget class="QLabel" name="label_17">
          <property name="text">
           <string>Scale X</string>
          </property>
         </widget>
        </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="calRes_acc_SCx"/>
+       </item>
        <item row="4" column="0">
-        <widget class="QLabel" name="label_12">
+        <widget class="QLabel" name="label_18">
          <property name="text">
           <string>Scale Y</string>
          </property>
         </widget>
        </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="calRes_acc_SCy"/>
+       </item>
        <item row="5" column="0">
-        <widget class="QLabel" name="label_13">
+        <widget class="QLabel" name="label_19">
          <property name="text">
           <string>Scale Z</string>
          </property>
         </widget>
        </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="calRes_acc_SCz"/>
+       </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+     <widget class="QLabel" name="label_20">
+      <property name="geometry">
+       <rect>
+        <x>590</x>
+        <y>130</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Calibration Result:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="saveCalibrationHeaderButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>660</x>
+        <y>310</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Store the calibration parameters in an header .h file. When such header is active the EEPROM calibration storage code is disabled thus saving program and data memory.</string>
+      </property>
+      <property name="text">
+       <string>Save to .h file</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="saveCalibrationEEPROMButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>310</y>
+        <width>111</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Store the calibration parameters to the microcontroller EEPROM</string>
+      </property>
+      <property name="text">
+       <string>Save to EEPROM</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -335,7 +528,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>801</width>
      <height>20</height>
     </rect>
    </property>
@@ -346,6 +539,11 @@
    <class>PlotWidget</class>
    <extends>QGraphicsView</extends>
    <header>pyqtgraph</header>
+  </customwidget>
+  <customwidget>
+   <class>GLViewWidget</class>
+   <extends>QGraphicsView</extends>
+   <header>pyqtgraph.opengl</header>
   </customwidget>
  </customwidgets>
  <resources/>
