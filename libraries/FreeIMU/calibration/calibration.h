@@ -3,6 +3,8 @@
  * Do not edit manually unless you know what you are doing.
 */
 
+#define CALIBRATION_H
+
 const int acc_off_x = 161;
 const int acc_off_y = -31;
 const int acc_off_z = 1212;
