@@ -25,7 +25,9 @@ ARCHIVE_FOR_DISTRIBUTION=1
 ##Which version name are we appending to the final archive
 BUILD_NAME=0.1
 APP_NAME=FreeIMU_GUI
+BUILD_DIR=dist
 TARGET_DIR=${APP_NAME}-${BUILD_NAME}-${BUILD_TARGET}
+
 
 ##Which versions of external programs to use
 PYPY_VERSION=1.9
@@ -92,9 +94,15 @@ else
 	TAR=gnutar
 fi
 
+
+# change directory
+cd $BUILD_DIR
+
+
 #############################
 # Download all needed files.
 #############################
+
 
 if [ $BUILD_TARGET = "win32" ]; then
 	#Get portable python for windows and extract it. (Linux and Mac need to install python themselfs)
@@ -131,7 +139,7 @@ if [ $BUILD_TARGET = "win32" ]; then
 	extract PortablePython_${WIN_PORTABLE_PY_VERSION}.exe \$_OUTDIR/Lib/site-packages
 	extract pyserial-2.5.win32.exe PURELIB
 	extract PyOpenGL-3.0.1.win32.exe PURELIB
-  extract PyQt-4.9.5/PyQt-Py2.7-x86-gpl-4.9.5-1.exe PURELIB
+  extract PyQt-4.9.5/PyQt-Py2.7-x86-gpl-4.9.5-1.exe \$_OUTDIR/Lib/site-packages
   extract pyqtgraph-dev-r218-32.exe PURELIB
 	extract numpy-1.6.2-win32-superpack-python2.7.exe numpy-1.6.2-sse2.exe
 	extract numpy-1.6.2-sse2.exe PLATLIB
@@ -146,7 +154,7 @@ if [ $BUILD_TARGET = "win32" ]; then
   mv PURELIB/pyqtgraph ${TARGET_DIR}/python/Lib
 	mv PURELIB/comtypes ${TARGET_DIR}/python/Lib
 	mv PLATLIB/numpy ${TARGET_DIR}/python/Lib
-	rm -rf \$_OUTDIR
+	#rm -rf \$_OUTDIR
 	rm -rf PURELIB
 	rm -rf PLATLIB
 	rm -rf numpy-1.6.2-sse2.exe
@@ -176,15 +184,15 @@ rm -rf ${TARGET_DIR}/pypy/lib-python/2.7/test
 
 #add FreeIMU_GUI
 mkdir -p ${TARGET_DIR}/${APP_NAME}
-cp -a Cura/* ${TARGET_DIR}/${APP_NAME}
-#Add cura version file
+cp -a ../FreeIMU_GUI/* ${TARGET_DIR}/${APP_NAME}
+#Add version file
 echo $BUILD_NAME > ${TARGET_DIR}/${APP_NAME}/version
 
 #add script files
 if [ $BUILD_TARGET = "win32" ]; then
-    cp -a scripts/${BUILD_TARGET}/*.bat $TARGET_DIR/
+    cp -a ../scripts/${BUILD_TARGET}/*.bat $TARGET_DIR/
 else
-    cp -a scripts/${BUILD_TARGET}/*.sh $TARGET_DIR/
+    cp -a ../scripts/${BUILD_TARGET}/*.sh $TARGET_DIR/
 fi
 
 #package the result
@@ -202,10 +210,10 @@ if (( ${ARCHIVE_FOR_DISTRIBUTION} )); then
 			wine ~/.wine/drive_c/Program\ Files/NSIS/makensis.exe /DVERSION=${BUILD_NAME} scripts/win32/installer.nsi 
 			mv scripts/win32/Cura_${BUILD_NAME}.exe ./
 		fi
-		if [ -f '/c/Program Files (x86)/NSIS/makensis.exe' ]; then
+		if [ -f '/cygdrive/c/Program Files/NSIS/makensis.exe' ]; then
 			rm -rf scripts/win32/dist
 			mv `pwd`/${TARGET_DIR} scripts/win32/dist
-			'/c/Program Files (x86)/NSIS/makensis.exe' -DVERSION=${BUILD_NAME} 'scripts/win32/installer.nsi' >> log.txt
+			'/c/Program Files/NSIS/makensis.exe' -DVERSION=${BUILD_NAME} 'scripts/win32/installer.nsi' >> log.txt
 			mv scripts/win32/Cura_${BUILD_NAME}.exe ./
 		fi
 	elif [ $BUILD_TARGET = "osx64" ]; then
