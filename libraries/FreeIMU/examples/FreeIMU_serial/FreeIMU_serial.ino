@@ -87,6 +87,9 @@ void loop() {
         EEPROM.write(FREEIMU_EEPROM_BASE + i, Serial.read());
       }
     }
+    else if(cmd == 'C') { // check calibration values
+      ; // TODO
+    }
     else if(cmd == 'd') { // debugging outputs
       while(1) {
         my3IMU.getRawValues(raw_values);

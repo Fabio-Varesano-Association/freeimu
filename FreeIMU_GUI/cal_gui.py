@@ -48,12 +48,42 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.accZX.setXRange(-acc_range, acc_range)
     self.accZX.setYRange(-acc_range, acc_range)
     
+    self.accXY.setAspectLocked()
+    self.accYZ.setAspectLocked()
+    self.accZX.setAspectLocked()
+    
     self.magnXY.setXRange(-magn_range, magn_range)
     self.magnXY.setYRange(-magn_range, magn_range)
     self.magnYZ.setXRange(-magn_range, magn_range)
     self.magnYZ.setYRange(-magn_range, magn_range)
     self.magnZX.setXRange(-magn_range, magn_range)
     self.magnZX.setYRange(-magn_range, magn_range)
+    
+    self.magnXY.setAspectLocked()
+    self.magnYZ.setAspectLocked()
+    self.magnZX.setAspectLocked()
+    
+    self.accXY_cal.setXRange(-1.5, 1.5)
+    self.accXY_cal.setYRange(-1.5, 1.5)
+    self.accYZ_cal.setXRange(-1.5, 1.5)
+    self.accYZ_cal.setYRange(-1.5, 1.5)
+    self.accZX_cal.setXRange(-1.5, 1.5)
+    self.accZX_cal.setYRange(-1.5, 1.5)
+    
+    self.accXY_cal.setAspectLocked()
+    self.accYZ_cal.setAspectLocked()
+    self.accZX_cal.setAspectLocked()
+    
+    self.magnXY_cal.setXRange(-1.5, 1.5)
+    self.magnXY_cal.setYRange(-1.5, 1.5)
+    self.magnYZ_cal.setXRange(-1.5, 1.5)
+    self.magnYZ_cal.setYRange(-1.5, 1.5)
+    self.magnZX_cal.setXRange(-1.5, 1.5)
+    self.magnZX_cal.setYRange(-1.5, 1.5)
+    
+    self.magnXY_cal.setAspectLocked()
+    self.magnYZ_cal.setAspectLocked()
+    self.magnZX_cal.setAspectLocked()
     
     self.acc3D.opts['distance'] = 20
     self.acc3D.show()
@@ -62,6 +92,9 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     ax.setSize(5,5,5)
     self.acc3D.addItem(ax)
 
+    self.sp = gl.GLScatterPlotItem(pos = [], color = (1.0, 0.0, 0.0, 0.5), size = 0.5)
+    self.acc3D.addItem(self.sp)
+    
     #b = gl.GLBoxItem()
     #self.acc3D.addItem(b)
 
@@ -108,6 +141,7 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
         self.connectButton.setText("Disconnect")
         self.connectButton.clicked.connect(self.serial_disconnect)
         self.serialPortEdit.setEnabled(False)
+        self.serialProtocol.setEnabled(False)
         
         self.samplingToggleButton.setEnabled(True)
     except serial.serialutil.SerialException, e:
@@ -124,6 +158,7 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.ser.close()
     self.set_status("Disconnected")
     self.serialPortEdit.setEnabled(True)
+    self.serialProtocol.setEnabled(True)
     
     self.connectButton.setText("Connect")
     self.connectButton.clicked.disconnect(self.serial_disconnect)
@@ -187,6 +222,17 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.calRes_magn_SCy.setText(str(self.magn_scale[1]))
     self.calRes_magn_SCz.setText(str(self.magn_scale[2]))
     
+    self.acc_cal_data = cal_lib.compute_calibrate_data(self.acc_data, self.acc_offset, self.acc_scale)
+    self.magn_cal_data = cal_lib.compute_calibrate_data(self.magn_data, self.magn_offset, self.magn_scale)
+    
+    self.accXY_cal.plot(x = self.acc_cal_data[0], y = self.acc_cal_data[1], clear = True, pen='r')
+    self.accYZ_cal.plot(x = self.acc_cal_data[1], y = self.acc_cal_data[2], clear = True, pen='g')
+    self.accZX_cal.plot(x = self.acc_cal_data[2], y = self.acc_cal_data[0], clear = True, pen='b')
+    
+    self.magnXY_cal.plot(x = self.magn_cal_data[0], y = self.magn_cal_data[1], clear = True, pen='r')
+    self.magnYZ_cal.plot(x = self.magn_cal_data[1], y = self.magn_cal_data[2], clear = True, pen='g')
+    self.magnZX_cal.plot(x = self.magn_cal_data[2], y = self.magn_cal_data[0], clear = True, pen='b')
+    
     #enable calibration buttons to activate calibration storing functions
     self.saveCalibrationHeaderButton.setEnabled(True)
     self.saveCalibrationHeaderButton.clicked.connect(self.save_calibration_header)
@@ -222,7 +268,7 @@ const float magn_scale_z = %f;
     calibration_h_text = text % (self.acc_offset[0], self.acc_offset[1], self.acc_offset[2], self.acc_scale[0], self.acc_scale[1], self.acc_scale[2], self.magn_offset[0], self.magn_offset[1], self.magn_offset[2], self.magn_scale[0], self.magn_scale[1], self.magn_scale[2])
     
     calibration_h_folder = QFileDialog.getExistingDirectory(self, "Select the Folder to which save the calibration.h file")
-    calibration_h_file = open(os.path.join(calibration_h_folder, calibration_h_file_name), "w")
+    calibration_h_file = open(os.path.join(str(calibration_h_folder), calibration_h_file_name), "w")
     calibration_h_file.write(calibration_h_text)
     calibration_h_file.close()
     
@@ -237,7 +283,6 @@ const float magn_scale_z = %f;
       self.acc_file.write(acc_readings_line)
       
       magn_readings_line = "%d %d %d\r\n" % (reading[6], reading[7], reading[8])
-      print magn_readings_line
       self.magn_file.write(magn_readings_line)
     
     # only display last reading in burst
@@ -258,10 +303,19 @@ const float magn_scale_z = %f;
     self.magnYZ.plot(x = self.magn_data[1], y = self.magn_data[2], clear = True, pen='g')
     self.magnZX.plot(x = self.magn_data[2], y = self.magn_data[0], clear = True, pen='b')
     
-    point3D = [{'pos': (reading[0],reading[1],reading[2]), 'size':0.5, 'color':(1.0, 0.0, 0.0, 0.5)}]
+    #point3D = [{'pos': (self.acc_data[0],self.acc_data[1],self.acc_data[2]), 'size':0.5, 'color':(1.0, 0.0, 0.0, 0.5)}]
     
-    #sp = gl.GLScatterPlotItem(point3D)
-    #self.acc3D.addItem(sp)
+    #points = numpy.array([self.acc_data[0],self.acc_data[1],self.acc_data[2]])
+    #points = numpy.transpose(points)
+    #print points
+    
+    #print numpy.array(self.acc_data)
+    
+    #poss = (numpy.random.random(size=(100000,3)) * 10) - 5
+    
+    #poss = [[1, 1, 1]]
+    
+    #self.sp.setData(pos = poss)
     
 
 class SerialWorker(QThread):

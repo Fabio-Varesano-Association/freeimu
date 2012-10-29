@@ -69,6 +69,16 @@ def calibrate_from_file(file_name):
   return calibrate(numpy.array(samples_x), numpy.array(samples_y), numpy.array(samples_z))
 
 
+def compute_calibrate_data(data, offsets, scale):
+  print data
+  output = [[], [], []]
+  for i in range(len(data[0])):
+    output[0].append((data[0][i] - offsets[0]) / scale[0])
+    output[1].append((data[1][i] - offsets[1]) / scale[1])
+    output[2].append((data[2][i] - offsets[2]) / scale[2])
+  return output
+
+
 if __name__ == "__main__":
   
   print "Calibrating from acc.txt"

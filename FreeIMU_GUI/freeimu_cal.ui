@@ -67,43 +67,14 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Serial Port:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="5">
-      <spacer name="horizontalSpacer">
+     <item row="0" column="4">
+      <widget class="Line" name="line_2">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item row="0" column="8">
-      <widget class="QPushButton" name="calibrateButton">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="toolTip">
-        <string>Run calibration algorithm over the data collected</string>
-       </property>
-       <property name="text">
-        <string>Calibrate</string>
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="serialPortEdit"/>
-     </item>
-     <item row="0" column="6">
+     <item row="0" column="7">
       <widget class="QPushButton" name="samplingToggleButton">
        <property name="enabled">
         <bool>false</bool>
@@ -125,24 +96,30 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="connectButton">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="serialPortEdit"/>
+     </item>
+     <item row="0" column="9">
+      <widget class="QPushButton" name="calibrateButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="toolTip">
-        <string>Connect or Disconnect from the Arduino</string>
+        <string>Run calibration algorithm over the data collected</string>
        </property>
        <property name="text">
-        <string>Connect</string>
+        <string>Calibrate</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Serial Port:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="7">
+     <item row="0" column="8">
       <widget class="QComboBox" name="calAlgorithmComboBox">
        <property name="enabled">
         <bool>false</bool>
@@ -153,6 +130,44 @@
        <item>
         <property name="text">
          <string>Ellipsoid to Sphere</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QPushButton" name="connectButton">
+       <property name="toolTip">
+        <string>Connect or Disconnect from the Arduino</string>
+       </property>
+       <property name="text">
+        <string>Connect</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="0" column="2">
+      <widget class="QComboBox" name="serialProtocol">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>Serial Protocol to Communicate with IMU</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>FreeIMU_serial</string>
         </property>
        </item>
       </widget>
