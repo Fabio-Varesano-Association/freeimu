@@ -51,7 +51,7 @@ function downloadURL
 	echo "Checking for $filename"
 	if [ ! -f "$filename" ]; then
 		echo "Downloading $1"
-		curl -L -O "$1"
+		curl -4 -L -O "$1"
 		if [ $? != 0 ]; then
 			echo "Failed to download $1"
 			exit 1
@@ -111,6 +111,7 @@ if [ $BUILD_TARGET = "win32" ]; then
 	downloadURL http://sourceforge.net/projects/pyopengl/files/PyOpenGL/3.0.1/PyOpenGL-3.0.1.win32.exe
   downloadURL http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-Py2.7-x86-gpl-4.9.5-1.exe
   downloadURL http://luke.campagnola.me/code/pyqtgraph/downloads/pyqtgraph-dev-r218-32.exe
+  downloadURL http://downloads.sourceforge.net/project/scipy/scipy/0.11.0/scipy-0.11.0-win32-superpack-python2.7.exe
 	downloadURL http://sourceforge.net/projects/numpy/files/NumPy/1.6.2/numpy-1.6.2-win32-superpack-python2.7.exe
 	downloadURL http://sourceforge.net/projects/comtypes/files/comtypes/0.6.2/comtypes-0.6.2.win32.exe
 	#Get pypy
@@ -137,24 +138,32 @@ if [ $BUILD_TARGET = "win32" ]; then
 	#For windows extract portable python to include it.
 	extract PortablePython_${WIN_PORTABLE_PY_VERSION}.exe \$_OUTDIR/App
 	extract PortablePython_${WIN_PORTABLE_PY_VERSION}.exe \$_OUTDIR/Lib/site-packages
+
+  mkdir -p ${TARGET_DIR}/python
+  mkdir -p ${TARGET_DIR}/${APP_NAME}/
+  mv \$_OUTDIR/App/* ${TARGET_DIR}/python
+  mv \$_OUTDIR/Lib/site-packages/wx* ${TARGET_DIR}/python/Lib/site-packages/
+  rm -rf \$_OUTDIR
+
 	extract pyserial-2.5.win32.exe PURELIB
 	extract PyOpenGL-3.0.1.win32.exe PURELIB
-  extract PyQt-4.9.5/PyQt-Py2.7-x86-gpl-4.9.5-1.exe \$_OUTDIR/Lib/site-packages
+  extract PyQt-Py2.7-x86-gpl-4.9.5-1.exe
   extract pyqtgraph-dev-r218-32.exe PURELIB
 	extract numpy-1.6.2-win32-superpack-python2.7.exe numpy-1.6.2-sse2.exe
 	extract numpy-1.6.2-sse2.exe PLATLIB
+  extract scipy-0.11.0-win32-superpack-python2.7.exe scipy-0.11.0-sse2.exe
+  extract scipy-0.11.0-sse2.exe PLATLIB
 	extract comtypes-0.6.2.win32.exe
 	
-	mkdir -p ${TARGET_DIR}/python
-	mkdir -p ${TARGET_DIR}/${APP_NAME}/
-	mv \$_OUTDIR/App/* ${TARGET_DIR}/python
-	mv \$_OUTDIR/Lib/site-packages/wx* ${TARGET_DIR}/python/Lib/site-packages/
-	mv PURELIB/serial ${TARGET_DIR}/python/Lib
+	mv Lib/site-packages/* ${TARGET_DIR}/python/Lib/site-packages
+	mv \$_OUTDIR/* ${TARGET_DIR}/python/Lib/site-packages/PyQt4/
+  mv PURELIB/serial ${TARGET_DIR}/python/Lib
 	mv PURELIB/OpenGL ${TARGET_DIR}/python/Lib
   mv PURELIB/pyqtgraph ${TARGET_DIR}/python/Lib
 	mv PURELIB/comtypes ${TARGET_DIR}/python/Lib
 	mv PLATLIB/numpy ${TARGET_DIR}/python/Lib
-	#rm -rf \$_OUTDIR
+  mv PLATLIB/scipy ${TARGET_DIR}/python/Lib
+	#
 	rm -rf PURELIB
 	rm -rf PLATLIB
 	rm -rf numpy-1.6.2-sse2.exe
