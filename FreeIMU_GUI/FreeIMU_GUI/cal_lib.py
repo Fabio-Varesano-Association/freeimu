@@ -62,15 +62,15 @@ def calibrate_from_file(file_name):
   samples_z = []
   for line in samples_f:
     reading = line.split()
-    samples_x.append(int(reading[0]))
-    samples_y.append(int(reading[1]))
-    samples_z.append(int(reading[2]))
+    if len(reading) == 3:
+      samples_x.append(int(reading[0]))
+      samples_y.append(int(reading[1]))
+      samples_z.append(int(reading[2]))
 
   return calibrate(numpy.array(samples_x), numpy.array(samples_y), numpy.array(samples_z))
 
 
 def compute_calibrate_data(data, offsets, scale):
-  print data
   output = [[], [], []]
   for i in range(len(data[0])):
     output[0].append((data[0][i] - offsets[0]) / scale[0])

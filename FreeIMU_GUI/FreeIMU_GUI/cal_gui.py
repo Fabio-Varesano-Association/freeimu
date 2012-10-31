@@ -1,10 +1,33 @@
+"""
+cal_gui.py - Calibration GUI for FreeIMU boards
+Copyright (C) 2012 Fabio Varesano <fabio at varesano dot net>
+
+Development of this code has been supported by the Department of Computer Science,
+Universita' degli Studi di Torino, Italy within the Piemonte Project
+http://www.piemonte.di.unito.it/
+
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the version 3 GNU General Public License as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
 import sys, os
 from PyQt4.QtGui import QApplication, QDialog, QMainWindow, QCursor, QFileDialog
 from ui_freeimu_cal import Ui_FreeIMUCal
 from PyQt4.QtCore import Qt,QObject, pyqtSlot, QThread, QSettings, SIGNAL
 import numpy as np
 import serial, time
-from struct import unpack
+from struct import unpack, pack
 from binascii import unhexlify
 from subprocess import call
 import pyqtgraph.opengl as gl
@@ -136,7 +159,7 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
         time.sleep(3)
         
         self.ser.write('v') # ask version
-        self.set_status("Connected to: " + self.ser.readline())
+        self.set_status("Connected to: " + self.ser.readline()) # TODO: hangs if a wrong serial protocol has been loaded. To be fixed.
         
         self.connectButton.setText("Disconnect")
         self.connectButton.clicked.connect(self.serial_disconnect)
@@ -200,6 +223,10 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     # read file and run calibration algorithm
     (self.acc_offset, self.acc_scale) = cal_lib.calibrate_from_file(acc_file_name)
     (self.magn_offset, self.magn_scale) = cal_lib.calibrate_from_file(magn_file_name)
+    
+    # map floats into integers
+    self.acc_offset = map(int, self.acc_offset)
+    self.magn_offset = map(int, self.magn_offset)
     
     # show calibrated tab
     self.tabWidget.setCurrentIndex(1)
@@ -275,7 +302,20 @@ const float magn_scale_z = %f;
     self.set_status("Calibration saved to: " + str(calibration_h_folder) + calibration_h_file_name + " .\nRecompile and upload the program using the FreeIMU library to your microcontroller.")
   
   def save_calibration_eeprom(self):
-    print "gatto"
+    self.ser.write("c")
+    # pack data into a string 
+    offsets = pack('<hhhhhh', self.acc_offset[0], self.acc_offset[1], self.acc_offset[2], self.magn_offset[0], self.magn_offset[1], self.magn_offset[2])
+    scales = pack('<ffffff', self.acc_scale[0], self.acc_scale[1], self.acc_scale[2], self.magn_scale[0], self.magn_scale[1], self.magn_scale[2])
+    # transmit to microcontroller
+    self.ser.write(offsets)
+    self.ser.write(scales)
+    self.set_status("Calibration saved to microcontroller EEPROM.")
+    # debug written values to stdout
+    print "Calibration values read back from EEPROM:"
+    self.ser.write("C")
+    for i in range(4):
+      print self.ser.readline()
+    
 
   def newData(self, data):
     for reading in data:

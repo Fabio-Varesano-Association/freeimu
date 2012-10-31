@@ -34,6 +34,9 @@ void setup() {
   Serial.begin(115200);
   Wire.begin();
   my3IMU.init(true);
+  
+  // LED
+  pinMode(13, OUTPUT);
 }
 
 
@@ -84,11 +87,46 @@ void loop() {
       while(Serial.available() < eepromsize) ; // wait until all calibration data are received
       EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
       for(uint8_t i = 1; i<(eepromsize + 1); i++) {
-        EEPROM.write(FREEIMU_EEPROM_BASE + i, Serial.read());
+        EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) Serial.read());
       }
+      my3IMU.calLoad(); // reload calibration
+      // toggle LED after calibration store.
+      digitalWrite(13, HIGH);
+      delay(1000);
+      digitalWrite(13, LOW);
     }
     else if(cmd == 'C') { // check calibration values
-      ; // TODO
+      Serial.print("acc offset: ");
+      Serial.print(my3IMU.acc_off_x);
+      Serial.print(",");
+      Serial.print(my3IMU.acc_off_y);
+      Serial.print(",");
+      Serial.print(my3IMU.acc_off_z);
+      Serial.print("\n");
+      
+      Serial.print("magn offset: ");
+      Serial.print(my3IMU.magn_off_x);
+      Serial.print(",");
+      Serial.print(my3IMU.magn_off_y);
+      Serial.print(",");
+      Serial.print(my3IMU.magn_off_z);
+      Serial.print("\n");
+      
+      Serial.print("acc scale: ");
+      Serial.print(my3IMU.acc_scale_x);
+      Serial.print(",");
+      Serial.print(my3IMU.acc_scale_y);
+      Serial.print(",");
+      Serial.print(my3IMU.acc_scale_z);
+      Serial.print("\n");
+      
+      Serial.print("magn scale: ");
+      Serial.print(my3IMU.magn_scale_x);
+      Serial.print(",");
+      Serial.print(my3IMU.magn_scale_y);
+      Serial.print(",");
+      Serial.print(my3IMU.magn_scale_z);
+      Serial.print("\n");
     }
     else if(cmd == 'd') { // debugging outputs
       while(1) {
@@ -119,3 +157,22 @@ char serial_busy_wait() {
   return Serial.read();
 }
 
+const int EEPROM_MIN_ADDR = 0;
+const int EEPROM_MAX_ADDR = 511;
+
+void eeprom_serial_dump_column() {
+  // counter
+  int i;
+
+  // byte read from eeprom
+  byte b;
+
+  // buffer used by sprintf
+  char buf[10];
+
+  for (i = EEPROM_MIN_ADDR; i <= EEPROM_MAX_ADDR; i++) {
+    b = EEPROM.read(i);
+    sprintf(buf, "%03X: %02X", i, b);
+    Serial.println(buf);
+  }
+}

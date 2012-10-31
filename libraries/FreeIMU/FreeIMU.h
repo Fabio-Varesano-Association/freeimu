@@ -93,7 +93,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <Wire.h>
 #include "Arduino.h"
-#include "calibration/calibration.h"
+#include "calibration.h"
 
 #ifndef CALIBRATION_H
 #include <EEPROM.h>
@@ -202,6 +202,10 @@ class FreeIMU
     
     
     int* raw_acc, raw_gyro, raw_magn;
+    // calirbation parameters
+    int16_t gyro_off_x, gyro_off_y, gyro_off_z;
+    int16_t acc_off_x, acc_off_y, acc_off_z, magn_off_x, magn_off_y, magn_off_z;
+    float acc_scale_x, acc_scale_y, acc_scale_z, magn_scale_x, magn_scale_y, magn_scale_z;
     
   private:
     #if IS_9DOM()
@@ -218,7 +222,7 @@ class FreeIMU
     volatile float integralFBx,  integralFBy, integralFBz;
     unsigned long lastUpdate, now; // sample period expressed in milliseconds
     float sampleFreq; // half the sample period expressed in seconds
-    int16_t gyro_off_x, gyro_off_y, gyro_off_z;
+    
 };
 
 float invSqrt(float number);
