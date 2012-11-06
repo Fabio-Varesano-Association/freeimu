@@ -7,15 +7,16 @@
 #include <HMC58X3.h>
 #include <ITG3200.h>
 #include <MS561101BA.h>
-#include "I2Cdev.h"
-#include "MPU6050.h"
+#include <I2Cdev.h>
+#include <MPU60X0.h>
+#include <EEPROM.h>
 
 //#define DEBUG
 #include "DebugUtils.h"
 #include "CommunicationUtils.h"
 #include "FreeIMU.h"
 #include <Wire.h>
-#include <EEPROM.h>
+#include <SPI.h>
 
 
 float q[4];

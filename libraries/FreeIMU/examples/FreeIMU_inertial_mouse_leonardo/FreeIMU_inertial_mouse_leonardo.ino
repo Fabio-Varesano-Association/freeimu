@@ -9,19 +9,19 @@
 */
 
 #include <ADXL345.h>
+#include <bma180.h>
 #include <HMC58X3.h>
 #include <ITG3200.h>
-#include <bma180.h>
 #include <MS561101BA.h>
 #include <I2Cdev.h>
-#include <MPU6050.h>
+#include <MPU60X0.h>
+#include <EEPROM.h>
 
 //#define DEBUG
 #include "DebugUtils.h"
-
 #include "FreeIMU.h"
-#include "CommunicationUtils.h"
 #include <Wire.h>
+#include <SPI.h>
 
 #include <math.h>
 

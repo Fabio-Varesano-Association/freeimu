@@ -31,13 +31,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define FREEIMU_v035
 //#define FREEIMU_v035_MS
 //#define FREEIMU_v035_BMP
-#define FREEIMU_v04
+//#define FREEIMU_v04
 
 // 3rd party boards. Please consider donating or buying a FreeIMU board to support this library development.
 //#define SEN_10121 //IMU Digital Combo Board - 6 Degrees of Freedom ITG3200/ADXL345 SEN-10121 http://www.sparkfun.com/products/10121
 //#define SEN_10736 //9 Degrees of Freedom - Razor IMU SEN-10736 http://www.sparkfun.com/products/10736
 //#define SEN_10724 //9 Degrees of Freedom - Sensor Stick SEN-10724 http://www.sparkfun.com/products/10724
 //#define SEN_10183 //9 Degrees of Freedom - Sensor Stick  SEN-10183 http://www.sparkfun.com/products/10183
+#define ARDUIMU_v3 //  DIYDrones ArduIMU+ V3 http://store.diydrones.com/ArduIMU_V3_p/kt-arduimu-30.htm or https://www.sparkfun.com/products/11055
+
 
 // *** No configuration needed below this line ***
 
@@ -76,6 +78,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   #define FREEIMU_ID "SparkFun 10724"
 #elif defined(SEN_10183)
   #define FREEIMU_ID "SparkFun 10183"
+#elif defined(ARDUIMU_v3)
+  #define FREEIMU_ID "DIY Drones ArduIMU+ V3"
 #endif
 
 
@@ -85,11 +89,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define HAS_BMA180() (defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP))
 #define HAS_MPU6050() (defined(FREEIMU_v04))
 #define HAS_MS5611() (defined(FREEIMU_v035_MS) || defined(FREEIMU_v04))
-#define HAS_HMC5883L() (defined(FREEIMU_v01) || defined(FREEIMU_v02) || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183))
+#define HAS_HMC5883L() (defined(FREEIMU_v01) || defined(FREEIMU_v02) || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183)  || defined(ARDUIMU_v3))
+#define HAS_MPU6000() (defined(ARDUIMU_v3))
 
 #define IS_6DOM() (defined(SEN_10121))
-#define IS_9DOM() (defined(FREEIMU_v01) || defined(FREEIMU_v02) || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183))
+#define IS_9DOM() (defined(FREEIMU_v01) || defined(FREEIMU_v02) || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10736) || defined(SEN_10724) || defined(SEN_10183) || defined(ARDUIMU_v3))
 #define HAS_AXIS_ALIGNED() (defined(FREEIMU_v01) || defined(FREEIMU_v02) || defined(FREEIMU_v03) || defined(FREEIMU_v035) || defined(FREEIMU_v035_MS) || defined(FREEIMU_v035_BMP) || defined(FREEIMU_v04) || defined(SEN_10121) || defined(SEN_10736))
+
+
 
 #include <Wire.h>
 #include "Arduino.h"
@@ -114,11 +121,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   //#define FIMU_ACC_ADDR BMA180_ADDRESS_SDO_HIGH
 //#elif FREEIMU_VER == 7
 #elif HAS_MPU6050()
+  #include <Wire.h>
   #include "I2Cdev.h"
-  #include "MPU6050.h"
-  #define FIMU_ACCGYRO_ADDR MPU6050_ADDRESS_AD0_LOW
-  //#define FIMU_ACCGYRO_ADDR MPU6050_ADDRESS_AD0_HIGH
+  #include "MPU60X0.h"
+  #define FIMU_ACCGYRO_ADDR MPU60X0_DEFAULT_ADDRESS
+#elif HAS_MPU6000()
+  #include <SPI.h>
+  #include "I2Cdev.h"
+  #include "MPU60X0.h"
+  #define FIMU_ACCGYRO_ADDR MPU60X0_DEFAULT_SS_PIN
 #endif
+
 
 #if HAS_MS5611()
   #include <MS561101BA.h>
@@ -192,7 +205,9 @@ class FreeIMU
     #if HAS_ITG3200()
       ITG3200 gyro;
     #elif HAS_MPU6050()
-      MPU6050 accgyro;
+      MPU60X0 accgyro; 
+    #elif HAS_MPU6000()
+      MPU60X0 accgyro; 
     #endif
       
       

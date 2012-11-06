@@ -44,7 +44,9 @@ FreeIMU::FreeIMU() {
   #if HAS_ITG3200()
     gyro = ITG3200();
   #elif HAS_MPU6050()
-    accgyro = MPU6050();
+    accgyro = MPU60X0(); // I2C
+  #elif HAS_MPU6000()
+    accgyro = MPU60X0(); // SPI for Arduimu v3
   #endif
     
   #if HAS_MS5611()
@@ -141,14 +143,23 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
   gyro.zeroCalibrate(128,5);
   #endif
   
-  #if HAS_MPU6050() 
-  accgyro = MPU6050(accgyro_addr);
+  
+  #if HAS_MPU6050()
+  accgyro = MPU60X0(false, accgyro_addr);
   accgyro.initialize();
   accgyro.setI2CMasterModeEnabled(0);
   accgyro.setI2CBypassEnabled(1);
-  accgyro.setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+  accgyro.setFullScaleGyroRange(MPU60X0_GYRO_FS_2000);
   delay(5);
   #endif
+  
+  #if HAS_MPU6000()
+  accgyro = MPU60X0(true, accgyro_addr);
+  accgyro.initialize();
+  accgyro.setFullScaleGyroRange(MPU60X0_GYRO_FS_2000);
+  delay(5);
+  #endif 
+  
   
   #if HAS_HMC5883L()
   // init HMC5843
@@ -160,6 +171,7 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
   delay(10);
   magn.setDOR(B110);
   #endif
+  
   
   #if HAS_MS5611()
     baro.init(FIMU_BARO_ADDR);
@@ -472,6 +484,8 @@ void FreeIMU::getQ(float * q) {
       AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2], val[6], val[7], val[8]);
     #elif defined(SEN_10724)
       AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2], val[7], -val[6], val[8]);
+    #elif defined(ARDUIMU_v3)
+      AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2], -val[6], -val[7], val[8]);
     #endif
   #else
     AHRSupdate(val[3] * M_PI/180, val[4] * M_PI/180, val[5] * M_PI/180, val[0], val[1], val[2]);

@@ -3,6 +3,7 @@
 // 11/1/2011 by Jeff Rowberg <jeff@rowberg.net>
 //
 // Changelog:
+//     2012-10-11 - add bit and bytes SPI R/W functions
 //     2011-11-01 - fix write*Bits mask calculation (thanks sasquatch @ Arduino forums)
 //     2011-10-03 - added automatic Arduino version detection for ease of use
 //     2011-10-02 - added Gene Knight's NBWire TwoWire class implementation with small modifications
@@ -67,6 +68,7 @@ THE SOFTWARE.
     #endif
     #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
         #include <Wire.h>
+		#include <SPI.h>
     #endif
 #else
     #include "ArduinoWrapper.h"
@@ -79,23 +81,23 @@ class I2Cdev {
     public:
         I2Cdev();
         
-        static int8_t readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readWord(uint8_t devAddr, uint8_t regAddr, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
-        static int8_t readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readBit(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readBitW(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readBits(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readBitsW(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readByte(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readWord(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readBytes(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout=I2Cdev::readTimeout);
+        static int8_t readWords(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data, uint16_t timeout=I2Cdev::readTimeout);
 
-        static bool writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data);
-        static bool writeBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t data);
-        static bool writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
-        static bool writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
-        static bool writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data);
-        static bool writeWord(uint8_t devAddr, uint8_t regAddr, uint16_t data);
-        static bool writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
-        static bool writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data);
+        static bool writeBit(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data);
+        static bool writeBitW(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t data);
+        static bool writeBits(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
+        static bool writeBitsW(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
+        static bool writeByte(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t data);
+        static bool writeWord(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint16_t data);
+        static bool writeBytes(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
+        static bool writeWords(bool useSPI, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data);
 
         static uint16_t readTimeout;
 };

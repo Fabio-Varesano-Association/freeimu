@@ -11,7 +11,7 @@ Arduino IDE from Tools->Serial Port: the selected entry is what you have
 to use as serialPort variable.
 
 
-Copyright (C) 2011 Fabio Varesano - http://www.varesano.net/
+Copyright (C) 2011-2012 Fabio Varesano - http://www.varesano.net/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the version 3 GNU General Public License as
@@ -46,16 +46,29 @@ final int VIEW_SIZE_X = 800, VIEW_SIZE_Y = 600;
 final int burst = 32;
 int count = 0;
 
+void myDelay(int time) {
+  try {
+    Thread.sleep(time);
+  } catch (InterruptedException e) { }
+}
+
 void setup() 
 {
   size(VIEW_SIZE_X, VIEW_SIZE_Y, P3D);
-  myPort = new Serial(this, serialPort, 115200);  
+  myPort = new Serial(this, serialPort, 115200);
   
   // The font must be located in the sketch's "data" directory to load successfully
   font = loadFont("CourierNew36.vlw"); 
   
-  delay(100);
+  println("Waiting IMU..");
+  
   myPort.clear();
+  
+  while (myPort.available() == 0) {
+    myPort.write("v");
+    myDelay(1000);
+  }
+  println(myPort.readStringUntil('\n'));
   myPort.write("q" + char(burst));
   myPort.bufferUntil('\n');
 }
@@ -75,7 +88,7 @@ float decodeFloat(String inString) {
   return Float.intBitsToFloat(intbits);
 }
 
-void serialEvent(Serial p) { 
+void serialEvent(Serial p) {
   if(p.available() >= 18) {
     String inputString = p.readStringUntil('\n');
     //print(inputString);
@@ -184,7 +197,8 @@ void draw() {
   text("Q:\n" + q[0] + "\n" + q[1] + "\n" + q[2] + "\n" + q[3], 20, 20);
   text("Euler Angles:\nYaw (psi)  : " + degrees(Euler[0]) + "\nPitch (theta): " + degrees(Euler[1]) + "\nRoll (phi)  : " + degrees(Euler[2]), 200, 20);
   
-  drawCube(); 
+  drawCube();
+  //myPort.write("q" + 1);
 }
 
 

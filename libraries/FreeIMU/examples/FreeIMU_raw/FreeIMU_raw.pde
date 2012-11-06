@@ -3,16 +3,15 @@
 #include <HMC58X3.h>
 #include <ITG3200.h>
 #include <MS561101BA.h>
-#include "I2Cdev.h"
-#include "MPU6050.h"
+#include <I2Cdev.h>
+#include <MPU60X0.h>
 #include <EEPROM.h>
 
 //#define DEBUG
 #include "DebugUtils.h"
-
-
 #include "FreeIMU.h"
 #include <Wire.h>
+#include <SPI.h>
 
 int raw_values[11];
 char str[512];
