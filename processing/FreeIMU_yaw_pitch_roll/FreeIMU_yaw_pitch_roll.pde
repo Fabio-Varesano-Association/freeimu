@@ -1,6 +1,15 @@
 /**
 Visualize orientation information from a FreeIMU device
-Copyright (C) 2011 Fabio Varesano - http://www.varesano.net/
+
+INSTRUCTIONS: 
+This program has to be run when you have the FreeIMU_serial
+program running on your Arduino and the Arduino connected to your PC.
+Remember to set the serialPort variable below to point to the name the
+Arduino serial port has in your system. You can get the port using the
+Arduino IDE from Tools->Serial Port: the selected entry is what you have
+to use as serialPort variable.
+
+Copyright (C) 2011-2012 Fabio Varesano - http://www.varesano.net/
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the version 3 GNU General Public License as
@@ -21,7 +30,7 @@ import processing.serial.*;
 Serial myPort;  // Create object from Serial class
 
 
-float [] Q = new float [4];
+float [] q = new float [4];
 float [] Euler = new float [3]; // psi, theta, phi
 
 int lf = 10; // 10 is '\n' in ASCII
@@ -30,6 +39,13 @@ byte[] inBuffer = new byte[22]; // this is the number of chars on each line from
 PFont font;
 final int VIEW_SIZE_X = 800, VIEW_SIZE_Y = 600;
 
+int burst = 32, count = 0;
+
+void myDelay(int time) {
+  try {
+    Thread.sleep(time);
+  } catch (InterruptedException e) { }
+}
 
 void setup() 
 {
@@ -39,9 +55,17 @@ void setup()
   // The font must be located in the sketch's "data" directory to load successfully
   font = loadFont("CourierNew36.vlw"); 
   
-  delay(100);
+  println("Waiting IMU..");
+  
   myPort.clear();
-  myPort.write("1");
+  
+  while (myPort.available() == 0) {
+    myPort.write("v");
+    myDelay(1000);
+  }
+  println(myPort.readStringUntil('\n'));
+  myPort.write("q" + char(burst));
+  myPort.bufferUntil('\n');
 }
 
 
@@ -60,18 +84,23 @@ float decodeFloat(String inString) {
 }
 
 
-void readQ() {
-  if(myPort.available() >= 18) {
-    String inputString = myPort.readStringUntil('\n');
+void serialEvent(Serial p) {
+  if(p.available() >= 18) {
+    String inputString = p.readStringUntil('\n');
     //print(inputString);
     if (inputString != null && inputString.length() > 0) {
       String [] inputStringArr = split(inputString, ",");
       if(inputStringArr.length >= 5) { // q1,q2,q3,q4,\r\n so we have 5 elements
-        Q[0] = decodeFloat(inputStringArr[0]);
-        Q[1] = decodeFloat(inputStringArr[1]);
-        Q[2] = decodeFloat(inputStringArr[2]);
-        Q[3] = decodeFloat(inputStringArr[3]);
+        q[0] = decodeFloat(inputStringArr[0]);
+        q[1] = decodeFloat(inputStringArr[1]);
+        q[2] = decodeFloat(inputStringArr[2]);
+        q[3] = decodeFloat(inputStringArr[3]);
       }
+    }
+    count = count + 1;
+    if(burst == count) { // ask more data when burst completed
+      p.write("q" + char(burst));
+      count = 0;
     }
   }
 }
@@ -166,8 +195,8 @@ void drawAngle(float angle, int circlex, int circley, int circlediameter, String
 }
 
 void draw() {  
-  readQ();
-  quaternionToYawPitchRoll(Q, Euler);
+
+  quaternionToYawPitchRoll(q, Euler);
   
   background(#000000);
   fill(#ffffff);
@@ -176,7 +205,7 @@ void draw() {
   //float temp_decoded = 35.0 + ((float) (temp + 13200)) / 280;
   //text("temp:\n" + temp_decoded + " C", 350, 250);
   textAlign(LEFT, TOP);
-  text("Q:\n" + Q[0] + "\n" + Q[1] + "\n" + Q[2] + "\n" + Q[3], 20, 10);
+  text("Q:\n" + q[0] + "\n" + q[1] + "\n" + q[2] + "\n" + q[3], 20, 10);
   text("Euler Angles:\nYaw (psi)  : " + degrees(Euler[0]) + "\nPitch (theta): " + degrees(Euler[1]) + "\nRoll (phi)  : " + degrees(Euler[2]), 200, 10);
   
   drawcompass(Euler[0], VIEW_SIZE_X/2 - 250, VIEW_SIZE_Y/2, 200);
