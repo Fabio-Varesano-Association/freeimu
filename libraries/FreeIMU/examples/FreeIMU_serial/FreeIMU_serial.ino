@@ -83,6 +83,7 @@ void loop() {
         Serial.println("");
       }
     }
+    #ifndef CALIBRATION_H
     else if(cmd == 'c') {
       const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
       while(Serial.available() < eepromsize) ; // wait until all calibration data are received
@@ -95,7 +96,9 @@ void loop() {
       digitalWrite(13, HIGH);
       delay(1000);
       digitalWrite(13, LOW);
+      ciao
     }
+    #endif
     else if(cmd == 'C') { // check calibration values
       Serial.print("acc offset: ");
       Serial.print(my3IMU.acc_off_x);
