@@ -96,7 +96,6 @@ void loop() {
       digitalWrite(13, HIGH);
       delay(1000);
       digitalWrite(13, LOW);
-      ciao
     }
     #endif
     else if(cmd == 'C') { // check calibration values
