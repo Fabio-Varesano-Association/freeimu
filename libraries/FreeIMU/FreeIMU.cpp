@@ -67,6 +67,7 @@ FreeIMU::FreeIMU() {
   lastUpdate = 0;
   now = 0;
   
+  #ifndef CALIBRATION_H
   // initialize scale factors to neutral values
   acc_scale_x = 1;
   acc_scale_y = 1;
@@ -74,6 +75,21 @@ FreeIMU::FreeIMU() {
   magn_scale_x = 1;
   magn_scale_y = 1;
   magn_scale_z = 1;
+  #else
+  // get values from global variables of same name defined in calibration.h
+  acc_off_x = ::acc_off_x;
+  acc_off_y = ::acc_off_y;
+  acc_off_z = ::acc_off_z;
+  acc_scale_x = ::acc_scale_x;
+  acc_scale_y = ::acc_scale_y;
+  acc_scale_z = ::acc_scale_z;
+  magn_off_x = ::magn_off_x;
+  magn_off_y = ::magn_off_y;
+  magn_off_z = ::magn_off_z;
+  magn_scale_x = ::magn_scale_x;
+  magn_scale_y = ::magn_scale_y;
+  magn_scale_z = ::magn_scale_z;
+  #endif
 }
 
 void FreeIMU::init() {
