@@ -66,6 +66,7 @@ MPU60X0::MPU60X0(bool useSPI, uint8_t address) {
 void MPU60X0::initialize() {
     // SPI Configuration
 	if (bSPI) {
+      SPI.begin();
     	pinMode(devAddr, OUTPUT);
     	digitalWrite(devAddr, HIGH);
 		reset();
