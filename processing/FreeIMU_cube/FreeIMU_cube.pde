@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 import processing.serial.*;
+import processing.opengl.*;
 
 Serial myPort;  // Create object from Serial class
 
@@ -54,7 +55,7 @@ void myDelay(int time) {
 
 void setup() 
 {
-  size(VIEW_SIZE_X, VIEW_SIZE_Y, P3D);
+  size(VIEW_SIZE_X, VIEW_SIZE_Y, OPENGL);
   myPort = new Serial(this, serialPort, 115200);
   
   // The font must be located in the sketch's "data" directory to load successfully
