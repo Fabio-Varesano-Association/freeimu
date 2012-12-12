@@ -47,13 +47,13 @@ MS561101BA::MS561101BA() {
 void MS561101BA::init(uint8_t address) {  
   _addr =  address;
   
-  // disable internal pullups of the ATMEGA which Wire enable by default
+    // disable internal pullups of the ATMEGA which Wire enable by default
   #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega8__) || defined(__AVR_ATmega328P__)
     // deactivate internal pull-ups for twi
     // as per note from atmega8 manual pg167
     cbi(PORTC, 4);
     cbi(PORTC, 5);
-  #else
+  #elif defined(__AVR__)
     // deactivate internal pull-ups for twi
     // as per note from atmega128 manual pg204
     cbi(PORTD, 0);
@@ -78,8 +78,8 @@ float MS561101BA::getPressure(uint8_t OSR) {
     return NULL;
   }
   
-  int64_t off  = ((uint32_t)_C[1] <<16) + (((int64_t)dT * _C[3]) >> 7);
-  int64_t sens = ((uint32_t)_C[0] <<15) + (((int64_t)dT * _C[2]) >> 8);
+  int64_t off  = ((uint32_t)_Cal[1] <<16) + (((int64_t)dT * _Cal[3]) >> 7);
+  int64_t sens = ((uint32_t)_Cal[0] <<15) + (((int64_t)dT * _Cal[2]) >> 8);
   return ((( (rawPress * sens ) >> 21) - off) >> 15) / 100.0;
 }
 
@@ -88,7 +88,7 @@ float MS561101BA::getTemperature(uint8_t OSR) {
   int64_t dT = getDeltaTemp(OSR);
   
   if(dT != NULL) {
-    return (2000 + ((dT * _C[5]) >> 23)) / 100.0;
+    return (2000 + ((dT * _Cal[5]) >> 23)) / 100.0;
   }
   else {
     return NULL;
@@ -98,7 +98,7 @@ float MS561101BA::getTemperature(uint8_t OSR) {
 int32_t MS561101BA::getDeltaTemp(uint8_t OSR) {
   uint32_t rawTemp = rawTemperature(OSR);
   if(rawTemp != NULL) {
-    return (int32_t)(rawTemp - ((uint32_t)_C[4] << 8));
+    return (int32_t)(rawTemp - ((uint32_t)_Cal[4] << 8));
   }
   else {
     return NULL;
@@ -182,9 +182,9 @@ int MS561101BA::readPROM() {
     Wire.beginTransmission(_addr);
     Wire.requestFrom(_addr, (uint8_t) MS561101BA_PROM_REG_SIZE);
     if(Wire.available()) {
-      _C[i] = Wire.read() << 8 | Wire.read();
+      _Cal[i] = Wire.read() << 8 | Wire.read();
       
-      //DEBUG_PRINT(_C[i]);
+      //DEBUG_PRINT(_Cal[i]);
     }
     else {
       return -1; // error reading the PROM or communicating with the device

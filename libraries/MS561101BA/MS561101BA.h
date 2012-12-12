@@ -79,7 +79,7 @@ class MS561101BA {
     void startConversion(uint8_t command);
     uint32_t getConversion(uint8_t command);
     uint8_t _addr;
-    uint16_t _C[MS561101BA_PROM_REG_COUNT];
+    uint16_t _Cal[MS561101BA_PROM_REG_COUNT];
     uint32_t pressCache, tempCache;
 };
 
