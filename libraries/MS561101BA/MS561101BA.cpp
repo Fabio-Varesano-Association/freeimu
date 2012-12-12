@@ -119,8 +119,8 @@ uint32_t MS561101BA::rawPressure(uint8_t OSR) {
       startConversion(MS561101BA_D1 + OSR);
       lastPresConv = now;
     }
-    return pressCache;
   }
+  return pressCache;
 }
 
 uint32_t MS561101BA::rawTemperature(uint8_t OSR) {
