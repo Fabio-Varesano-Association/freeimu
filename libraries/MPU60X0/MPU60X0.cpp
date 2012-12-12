@@ -41,7 +41,7 @@ THE SOFTWARE.
  * @see MPU60X0_DEFAULT_SS_PIN
  */
 MPU60X0::MPU60X0() {
-
+  devAddr = MPU60X0_DEFAULT_ADDRESS;
 }
 
 /** Specific address constructor.
@@ -52,8 +52,8 @@ MPU60X0::MPU60X0() {
  * @see MPU60X0_ADDRESS_AD0_HIGH
  */
 MPU60X0::MPU60X0(bool useSPI, uint8_t address) {
-	bSPI = useSPI;
-    devAddr = address;
+  bSPI = useSPI;
+  devAddr = address;
 }
 
 /** Power on and prepare for general usage.
