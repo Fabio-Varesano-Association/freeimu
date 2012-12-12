@@ -119,22 +119,24 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
 #endif
   delay(5);
   
-  // disable internal pullups of the ATMEGA which Wire enable by default
+    // disable internal pullups of the ATMEGA which Wire enable by default
   #if defined(__AVR_ATmega168__) || defined(__AVR_ATmega8__) || defined(__AVR_ATmega328P__)
     // deactivate internal pull-ups for twi
     // as per note from atmega8 manual pg167
     cbi(PORTC, 4);
     cbi(PORTC, 5);
-  #else
+  #elif defined(__AVR__)
     // deactivate internal pull-ups for twi
     // as per note from atmega128 manual pg204
     cbi(PORTD, 0);
     cbi(PORTD, 1);
   #endif
-  
-  if(fastmode) { // switch to 400KHz I2C - eheheh
-    TWBR = ((F_CPU / 400000L) - 16) / 2; // see twi_init in Wire/utility/twi.c
-  }
+
+  #if defined(__AVR__) // only valid on AVR, not on 32bit platforms (eg: Arduino 2, Teensy 3.0)
+    if(fastmode) { // switch to 400KHz I2C - eheheh
+      TWBR = ((F_CPU / 400000L) - 16) / 2; // see twi_init in Wire/utility/twi.c
+    }
+  #endif
   
   #if HAS_ADXL345()
     // init ADXL345
@@ -233,7 +235,7 @@ void FreeIMU::calLoad() {
     eeprom_read_var(sizeof(magn_scale_y), (byte *) &magn_scale_y);
     eeprom_read_var(sizeof(magn_scale_z), (byte *) &magn_scale_z);
   }
-  else {
+  else { // neutral values
     acc_off_x = 0;
     acc_off_y = 0;
     acc_off_z = 0;
@@ -259,7 +261,18 @@ void FreeIMU::getRawValues(int * raw_values) {
     acc.readAccel(&raw_values[0], &raw_values[1], &raw_values[2]);
     gyro.readGyroRaw(&raw_values[3], &raw_values[4], &raw_values[5]);
   #else
-    accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+    #ifdef __AVR__
+      accgyro.getMotion6(&raw_values[0], &raw_values[1], &raw_values[2], &raw_values[3], &raw_values[4], &raw_values[5]);
+    #else
+      int16_t ax, ay, az, gx, gy, gz;
+      accgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+      raw_values[0] = ax;
+      raw_values[1] = ay;
+      raw_values[2] = az;
+      raw_values[3] = gx;
+      raw_values[4] = gy;
+      raw_values[5] = gz;
+    #endif
   #endif
   #if HAS_HMC5883L()
     magn.getValues(&raw_values[6], &raw_values[7], &raw_values[8]);
@@ -494,6 +507,7 @@ void FreeIMU::getQ(float * q) {
   now = micros();
   sampleFreq = 1.0 / ((now - lastUpdate) / 1000000.0);
   lastUpdate = now;
+  
   // gyro values are expressed in deg/sec, the * M_PI/180 will convert it to radians/sec
   #if IS_9DOM()
     #if HAS_AXIS_ALIGNED()
@@ -511,6 +525,7 @@ void FreeIMU::getQ(float * q) {
   q[1] = q1;
   q[2] = q2;
   q[3] = q3;
+  
 }
 
 
@@ -668,6 +683,7 @@ void FreeIMU::getYawPitchRollRad(float * ypr) {
   float gx, gy, gz; // estimated gravity direction
   getQ(q);
   
+  
   gx = 2 * (q[1]*q[3] - q[0]*q[2]);
   gy = 2 * (q[0]*q[1] + q[2]*q[3]);
   gz = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
@@ -705,9 +721,22 @@ void arr3_rad_to_deg(float * arr) {
 
 
 /**
- * Fast inverse square root implementation
+ * Fast inverse square root implementation. Compatible both for 32 and 8 bit microcontrollers.
  * @see http://en.wikipedia.org/wiki/Fast_inverse_square_root
 */
+float invSqrt(float number) {
+  union {
+    float f;
+    int32_t i;
+  } y;
+
+  y.f = number;
+  y.i = 0x5f375a86 - (y.i >> 1);
+  y.f = y.f * ( 1.5f - ( number * 0.5f * y.f * y.f ) );
+  return y.f;
+}
+
+/* Old 8bit version. Kept it here only for testing/debugging of the new code above.
 float invSqrt(float number) {
   volatile long i;
   volatile float x, y;
@@ -721,6 +750,8 @@ float invSqrt(float number) {
   y = y * ( f - ( x * y * y ) );
   return y;
 }
+*/
+
 
 
 

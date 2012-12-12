@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // *** No configuration needed below this line ***
 
 
-#define FREEIMU_LIB_VERSION "20120726"
+#define FREEIMU_LIB_VERSION "DEV"
 
 #define FREEIMU_DEVELOPER "Fabio Varesano - varesano.net"
 
