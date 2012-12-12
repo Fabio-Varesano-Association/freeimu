@@ -23,7 +23,7 @@ fi
 ##Do we need to create the final archive
 ARCHIVE_FOR_DISTRIBUTION=1
 ##Which version name are we appending to the final archive
-BUILD_NAME=0.1
+BUILD_NAME=0.2
 APP_NAME=FreeIMU_GUI
 BUILD_DIR=dist
 TARGET_DIR=${APP_NAME}-${BUILD_NAME}-${BUILD_TARGET}
@@ -110,7 +110,7 @@ if [ $BUILD_TARGET = "win32" ]; then
 	downloadURL http://sourceforge.net/projects/pyserial/files/pyserial/2.5/pyserial-2.5.win32.exe
 	downloadURL http://sourceforge.net/projects/pyopengl/files/PyOpenGL/3.0.1/PyOpenGL-3.0.1.win32.exe
   downloadURL http://sourceforge.net/projects/pyqt/files/PyQt4/PyQt-4.9.5/PyQt-Py2.7-x86-gpl-4.9.5-1.exe
-  downloadURL http://luke.campagnola.me/code/pyqtgraph/downloads/pyqtgraph-dev-r218-32.exe
+  downloadURL http://www.pyqtgraph.org/downloads/pyqtgraph-dev-r223-32.exe
   downloadURL http://downloads.sourceforge.net/project/scipy/scipy/0.11.0/scipy-0.11.0-win32-superpack-python2.7.exe
 	downloadURL http://sourceforge.net/projects/numpy/files/NumPy/1.6.2/numpy-1.6.2-win32-superpack-python2.7.exe
 	downloadURL http://sourceforge.net/projects/comtypes/files/comtypes/0.6.2/comtypes-0.6.2.win32.exe
@@ -148,7 +148,7 @@ if [ $BUILD_TARGET = "win32" ]; then
 	extract pyserial-2.5.win32.exe PURELIB
 	extract PyOpenGL-3.0.1.win32.exe PURELIB
   extract PyQt-Py2.7-x86-gpl-4.9.5-1.exe
-  extract pyqtgraph-dev-r218-32.exe PURELIB
+  extract pyqtgraph-dev-r223-32.exe PURELIB
 	extract numpy-1.6.2-win32-superpack-python2.7.exe numpy-1.6.2-sse2.exe
 	extract numpy-1.6.2-sse2.exe PLATLIB
   extract scipy-0.11.0-win32-superpack-python2.7.exe scipy-0.11.0-sse2.exe
