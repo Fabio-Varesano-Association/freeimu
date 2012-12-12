@@ -37,7 +37,7 @@ acc_file_name = "acc.txt"
 magn_file_name = "magn.txt"
 calibration_h_file_name = "calibration.h"
 
-acc_range = 15000
+acc_range = 25000
 magn_range = 1000
 
 class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
