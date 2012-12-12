@@ -97,6 +97,10 @@ void loop() {
       delay(1000);
       digitalWrite(13, LOW);
     }
+    else if(cmd == 'x') {
+      EEPROM.write(FREEIMU_EEPROM_BASE, 0); // reset signature
+      my3IMU.calLoad(); // reload calibration
+    }
     #endif
     else if(cmd == 'C') { // check calibration values
       Serial.print("acc offset: ");
