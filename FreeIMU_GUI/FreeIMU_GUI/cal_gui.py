@@ -153,7 +153,7 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
       
       if self.ser.isOpen():
         print "Arduino serial port opened correctly"
-        self.set_status("Connection Successfull. Awaiting for Arduino reset...")
+        self.set_status("Connection Successfull. Waiting for Arduino reset...")
 
         # wait for arduino reset on serial open
         time.sleep(3)
@@ -167,6 +167,10 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
         self.serialProtocol.setEnabled(False)
         
         self.samplingToggleButton.setEnabled(True)
+        
+        self.clearCalibrationEEPROMButton.setEnabled(True)
+        self.clearCalibrationEEPROMButton.clicked.connect(self.clear_calibration_eeprom)
+        
     except serial.serialutil.SerialException, e:
       self.connectButton.setEnabled(True)
       self.set_status("Impossible to connect: " + str(e))
@@ -188,11 +192,11 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.connectButton.clicked.connect(self.serial_connect)
     
     self.samplingToggleButton.setEnabled(False)
+    
+    self.clearCalibrationEEPROMButton.setEnabled(False)
+    self.clearCalibrationEEPROMButton.clicked.disconnect(self.clear_calibration_eeprom)
       
   def sampling_start(self):
-    self.acc_file = open(acc_file_name, 'w')
-    self.magn_file = open(magn_file_name, 'w')
-    
     self.serWorker = SerialWorker(ser = self.ser)
     self.connect(self.serWorker, SIGNAL("new_data(PyQt_PyObject)"), self.newData)
     self.serWorker.start()
@@ -209,10 +213,6 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.samplingToggleButton.setText("Start Sampling")
     self.samplingToggleButton.clicked.disconnect(self.sampling_end)
     self.samplingToggleButton.clicked.connect(self.sampling_start)
-    
-    # closing open logging files
-    self.acc_file.close()
-    self.magn_file.close()
     
     self.calibrateButton.setEnabled(True)
     self.calAlgorithmComboBox.setEnabled(True)
@@ -315,15 +315,15 @@ const float magn_scale_z = %f;
     self.ser.write("C")
     for i in range(4):
       print self.ser.readline()
+      
+      
+  def clear_calibration_eeprom(self):
+    self.ser.write("x")
+    # no feedback expected. we assume success.
+    self.set_status("Calibration cleared from microcontroller EEPROM.")
     
 
-  def newData(self, data):
-    for reading in data:
-      acc_readings_line = "%d %d %d\r\n" % (reading[0], reading[1], reading[2])
-      self.acc_file.write(acc_readings_line)
-      
-      magn_readings_line = "%d %d %d\r\n" % (reading[6], reading[7], reading[8])
-      self.magn_file.write(magn_readings_line)
+  def newData(self, reading):
     
     # only display last reading in burst
     self.acc_data[0].append(reading[0])
@@ -370,32 +370,39 @@ class SerialWorker(QThread):
     self.exiting = False
     self.ser = ser
     
+    
+    
   def run(self):
     print "sampling start.."
-    count = 50
+    self.acc_file = open(acc_file_name, 'w')
+    self.magn_file = open(magn_file_name, 'w')
+    count = 100
     in_values = 9
-    buff = []
-    buff_line = [0.0 for i in range(in_values)]
+    reading = [0.0 for i in range(in_values)]
     while not self.exiting:
       self.ser.write('b')
       self.ser.write(chr(count))
       for j in range(count):
         for i in range(in_values):
-          buff_line[i] = unpack('h', self.ser.read(2))[0]
+          reading[i] = unpack('h', self.ser.read(2))[0]
         self.ser.read(2) # consumes remaining '\r\n'
-        buff.append(list(buff_line))
-      self.emit(SIGNAL("new_data(PyQt_PyObject)"), buff)
-      buff = []
+        # prepare readings to store on file
+        acc_readings_line = "%d %d %d\r\n" % (reading[0], reading[1], reading[2])
+        self.acc_file.write(acc_readings_line)
+        magn_readings_line = "%d %d %d\r\n" % (reading[6], reading[7], reading[8])
+        self.magn_file.write(magn_readings_line)
+      # every count times we pass some data to the GUI
+      self.emit(SIGNAL("new_data(PyQt_PyObject)"), reading)
       print ".",
+    # closing acc and magn files
+    self.acc_file.close()
+    self.magn_file.close()
     return 
   
   def __del__(self):
     self.exiting = True
     self.wait()
     print "SerialWorker exits.."
-  
-  #def quit(self):
-    #self.exiting = True
 
 
 app = QApplication(sys.argv)

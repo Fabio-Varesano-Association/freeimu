@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'freeimu_cal.ui'
 #
-# Created: Mon Oct 29 12:58:01 2012
-#      by: PyQt4 UI code generator 4.9.5
+# Created: Thu Dec 13 18:41:16 2012
+#      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,16 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_FreeIMUCal(object):
     def setupUi(self, FreeIMUCal):
@@ -298,7 +307,7 @@ class Ui_FreeIMUCal(object):
         self.formLayout_5.setWidget(5, QtGui.QFormLayout.FieldRole, self.calRes_magn_SCz)
         self.horizontalLayout.addWidget(self.groupBox_2)
         self.horizontalLayoutWidget_2 = QtGui.QWidget(self.calibratedTab)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(500, 560, 289, 31))
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(488, 560, 301, 31))
         self.horizontalLayoutWidget_2.setObjectName(_fromUtf8("horizontalLayoutWidget_2"))
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setMargin(0)
@@ -423,6 +432,16 @@ class Ui_FreeIMUCal(object):
         self.magn3D_cal.setObjectName(_fromUtf8("magn3D_cal"))
         self.tabWidget_3.addTab(self.tab_8, _fromUtf8(""))
         self.horizontalLayout_3.addWidget(self.tabWidget_3)
+        self.horizontalLayoutWidget_4 = QtGui.QWidget(self.calibratedTab)
+        self.horizontalLayoutWidget_4.setGeometry(QtCore.QRect(0, 560, 161, 31))
+        self.horizontalLayoutWidget_4.setObjectName(_fromUtf8("horizontalLayoutWidget_4"))
+        self.horizontalLayout_4 = QtGui.QHBoxLayout(self.horizontalLayoutWidget_4)
+        self.horizontalLayout_4.setMargin(0)
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.clearCalibrationEEPROMButton = QtGui.QPushButton(self.horizontalLayoutWidget_4)
+        self.clearCalibrationEEPROMButton.setEnabled(False)
+        self.clearCalibrationEEPROMButton.setObjectName(_fromUtf8("clearCalibrationEEPROMButton"))
+        self.horizontalLayout_4.addWidget(self.clearCalibrationEEPROMButton)
         self.tabWidget.addTab(self.calibratedTab, _fromUtf8(""))
         FreeIMUCal.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(FreeIMUCal)
@@ -436,48 +455,50 @@ class Ui_FreeIMUCal(object):
         QtCore.QMetaObject.connectSlotsByName(FreeIMUCal)
 
     def retranslateUi(self, FreeIMUCal):
-        FreeIMUCal.setWindowTitle(QtGui.QApplication.translate("FreeIMUCal", "FreeIMU Calibration Application", None, QtGui.QApplication.UnicodeUTF8))
-        self.samplingToggleButton.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Toggle Start/Stop sampling of sensor data from the IMU", None, QtGui.QApplication.UnicodeUTF8))
-        self.samplingToggleButton.setText(QtGui.QApplication.translate("FreeIMUCal", "Start Sampling", None, QtGui.QApplication.UnicodeUTF8))
-        self.calibrateButton.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Run calibration algorithm over the data collected", None, QtGui.QApplication.UnicodeUTF8))
-        self.calibrateButton.setText(QtGui.QApplication.translate("FreeIMUCal", "Calibrate", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("FreeIMUCal", "Serial Port:", None, QtGui.QApplication.UnicodeUTF8))
-        self.calAlgorithmComboBox.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "<html><head/><body><p>Calibration Algorithm used.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.calAlgorithmComboBox.setItemText(0, QtGui.QApplication.translate("FreeIMUCal", "Ellipsoid to Sphere", None, QtGui.QApplication.UnicodeUTF8))
-        self.connectButton.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Connect or Disconnect from the Arduino", None, QtGui.QApplication.UnicodeUTF8))
-        self.connectButton.setText(QtGui.QApplication.translate("FreeIMUCal", "Connect", None, QtGui.QApplication.UnicodeUTF8))
-        self.serialProtocol.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Serial Protocol to Communicate with IMU", None, QtGui.QApplication.UnicodeUTF8))
-        self.serialProtocol.setItemText(0, QtGui.QApplication.translate("FreeIMUCal", "FreeIMU_serial", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("FreeIMUCal", "Accelerometer", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("FreeIMUCal", "Magnetometer", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.uncalibratedTab), QtGui.QApplication.translate("FreeIMUCal", "Uncalibrated", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("FreeIMUCal", "Accelerometer", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_14.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset X", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_15.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset Y", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_16.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset Z", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_17.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale X", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_18.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale Y", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_19.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale Z", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_2.setTitle(QtGui.QApplication.translate("FreeIMUCal", "Magnetometer", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_27.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset X", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_28.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset Y", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_29.setText(QtGui.QApplication.translate("FreeIMUCal", "Offset Z", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_30.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale X", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_31.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale Y", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_32.setText(QtGui.QApplication.translate("FreeIMUCal", "Scale Z", None, QtGui.QApplication.UnicodeUTF8))
-        self.saveCalibrationEEPROMButton.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Store the calibration parameters to the microcontroller EEPROM", None, QtGui.QApplication.UnicodeUTF8))
-        self.saveCalibrationEEPROMButton.setText(QtGui.QApplication.translate("FreeIMUCal", "Save to EEPROM", None, QtGui.QApplication.UnicodeUTF8))
-        self.saveCalibrationHeaderButton.setToolTip(QtGui.QApplication.translate("FreeIMUCal", "Store the calibration parameters in an header .h file. When such header is active the EEPROM calibration storage code is disabled thus saving program and data memory.", None, QtGui.QApplication.UnicodeUTF8))
-        self.saveCalibrationHeaderButton.setText(QtGui.QApplication.translate("FreeIMUCal", "Save to calibration.h", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), QtGui.QApplication.translate("FreeIMUCal", "Acc XY", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), QtGui.QApplication.translate("FreeIMUCal", "Acc YZ", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), QtGui.QApplication.translate("FreeIMUCal", "Acc ZX", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_7), QtGui.QApplication.translate("FreeIMUCal", "Acc 3D", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_2), QtGui.QApplication.translate("FreeIMUCal", "Magn XY", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), QtGui.QApplication.translate("FreeIMUCal", "Magn YZ", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_6), QtGui.QApplication.translate("FreeIMUCal", "Magn ZX", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_8), QtGui.QApplication.translate("FreeIMUCal", "Magn 3D", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.calibratedTab), QtGui.QApplication.translate("FreeIMUCal", "Calibrated", None, QtGui.QApplication.UnicodeUTF8))
+        FreeIMUCal.setWindowTitle(_translate("FreeIMUCal", "FreeIMU Calibration Application", None))
+        self.samplingToggleButton.setToolTip(_translate("FreeIMUCal", "Toggle Start/Stop sampling of sensor data from the IMU", None))
+        self.samplingToggleButton.setText(_translate("FreeIMUCal", "Start Sampling", None))
+        self.calibrateButton.setToolTip(_translate("FreeIMUCal", "Run calibration algorithm over the data collected", None))
+        self.calibrateButton.setText(_translate("FreeIMUCal", "Calibrate", None))
+        self.label.setText(_translate("FreeIMUCal", "Serial Port:", None))
+        self.calAlgorithmComboBox.setToolTip(_translate("FreeIMUCal", "<html><head/><body><p>Calibration Algorithm used.</p></body></html>", None))
+        self.calAlgorithmComboBox.setItemText(0, _translate("FreeIMUCal", "Ellipsoid to Sphere", None))
+        self.connectButton.setToolTip(_translate("FreeIMUCal", "Connect or Disconnect from the Arduino", None))
+        self.connectButton.setText(_translate("FreeIMUCal", "Connect", None))
+        self.serialProtocol.setToolTip(_translate("FreeIMUCal", "Serial Protocol to Communicate with IMU", None))
+        self.serialProtocol.setItemText(0, _translate("FreeIMUCal", "FreeIMU_serial", None))
+        self.label_2.setText(_translate("FreeIMUCal", "Accelerometer", None))
+        self.label_3.setText(_translate("FreeIMUCal", "Magnetometer", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.uncalibratedTab), _translate("FreeIMUCal", "Uncalibrated", None))
+        self.groupBox.setTitle(_translate("FreeIMUCal", "Accelerometer", None))
+        self.label_14.setText(_translate("FreeIMUCal", "Offset X", None))
+        self.label_15.setText(_translate("FreeIMUCal", "Offset Y", None))
+        self.label_16.setText(_translate("FreeIMUCal", "Offset Z", None))
+        self.label_17.setText(_translate("FreeIMUCal", "Scale X", None))
+        self.label_18.setText(_translate("FreeIMUCal", "Scale Y", None))
+        self.label_19.setText(_translate("FreeIMUCal", "Scale Z", None))
+        self.groupBox_2.setTitle(_translate("FreeIMUCal", "Magnetometer", None))
+        self.label_27.setText(_translate("FreeIMUCal", "Offset X", None))
+        self.label_28.setText(_translate("FreeIMUCal", "Offset Y", None))
+        self.label_29.setText(_translate("FreeIMUCal", "Offset Z", None))
+        self.label_30.setText(_translate("FreeIMUCal", "Scale X", None))
+        self.label_31.setText(_translate("FreeIMUCal", "Scale Y", None))
+        self.label_32.setText(_translate("FreeIMUCal", "Scale Z", None))
+        self.saveCalibrationEEPROMButton.setToolTip(_translate("FreeIMUCal", "Store the calibration parameters to the microcontroller EEPROM", None))
+        self.saveCalibrationEEPROMButton.setText(_translate("FreeIMUCal", "Save to EEPROM", None))
+        self.saveCalibrationHeaderButton.setToolTip(_translate("FreeIMUCal", "Store the calibration parameters in an header .h file. When such header is active the EEPROM calibration storage code is disabled thus saving program and data memory.", None))
+        self.saveCalibrationHeaderButton.setText(_translate("FreeIMUCal", "Save to calibration.h", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab), _translate("FreeIMUCal", "Acc XY", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("FreeIMUCal", "Acc YZ", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), _translate("FreeIMUCal", "Acc ZX", None))
+        self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_7), _translate("FreeIMUCal", "Acc 3D", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_2), _translate("FreeIMUCal", "Magn XY", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_5), _translate("FreeIMUCal", "Magn YZ", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_6), _translate("FreeIMUCal", "Magn ZX", None))
+        self.tabWidget_3.setTabText(self.tabWidget_3.indexOf(self.tab_8), _translate("FreeIMUCal", "Magn 3D", None))
+        self.clearCalibrationEEPROMButton.setToolTip(_translate("FreeIMUCal", "<html><head/><body><p>Clear any calibration parameter from the microcontroller EEPROM</p></body></html>", None))
+        self.clearCalibrationEEPROMButton.setText(_translate("FreeIMUCal", "Clear EEPROM", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.calibratedTab), _translate("FreeIMUCal", "Calibrated", None))
 
 from pyqtgraph import PlotWidget
 from pyqtgraph.opengl import GLViewWidget

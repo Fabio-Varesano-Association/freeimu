@@ -545,9 +545,9 @@
      <widget class="QWidget" name="horizontalLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>500</x>
+        <x>488</x>
         <y>560</y>
-        <width>289</width>
+        <width>301</width>
         <height>31</height>
        </rect>
       </property>
@@ -806,6 +806,31 @@
            </property>
           </widget>
          </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>560</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QPushButton" name="clearCalibrationEEPROMButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clear any calibration parameter from the microcontroller EEPROM&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string>Clear EEPROM</string>
+         </property>
         </widget>
        </item>
       </layout>
