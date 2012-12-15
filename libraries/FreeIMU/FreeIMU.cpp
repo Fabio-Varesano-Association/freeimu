@@ -136,7 +136,18 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
     if(fastmode) { // switch to 400KHz I2C - eheheh
       TWBR = ((F_CPU / 400000L) - 16) / 2; // see twi_init in Wire/utility/twi.c
     }
+  #elif defined(__arm__)
+    if(fastmode) {
+      #if defined(CORE_TEENSY) && F_BUS == 48000000
+        I2C0_F = 0x85;  // Teensy 3.0 at 48 or 96 MHz
+        I2C0_FLT = 2;
+      #elif defined(CORE_TEENSY) && F_BUS == 24000000
+        I2C0_F = 0x45;  // Teensy 3.0 at 24 MHz
+        I2C0_FLT = 1;
+      #endif
+    }
   #endif
+  
   
   #if HAS_ADXL345()
     // init ADXL345
