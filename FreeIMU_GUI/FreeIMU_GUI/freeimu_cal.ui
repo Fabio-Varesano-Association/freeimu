@@ -836,6 +836,24 @@
       </layout>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_9">
+     <attribute name="title">
+      <string>Orientation Sensing Test</string>
+     </attribute>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>270</y>
+        <width>261</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>To Be Implemented</string>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

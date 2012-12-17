@@ -64,6 +64,7 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.acc_data = [[], [], []]
     self.magn_data = [[], [], []]
     
+    # setup graphs
     self.accXY.setXRange(-acc_range, acc_range)
     self.accXY.setYRange(-acc_range, acc_range)
     self.accYZ.setXRange(-acc_range, acc_range)
@@ -108,15 +109,25 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.magnYZ_cal.setAspectLocked()
     self.magnZX_cal.setAspectLocked()
     
-    self.acc3D.opts['distance'] = 20
+    self.acc3D.opts['distance'] = 30000
     self.acc3D.show()
-
+    
+    self.magn3D.opts['distance'] = 2000
+    self.magn3D.show()
+    
     ax = gl.GLAxisItem()
-    ax.setSize(5,5,5)
+    ax.setSize(x=20000, y=20000, z=20000)
     self.acc3D.addItem(ax)
-
-    self.acc3D_sp = gl.GLScatterPlotItem(pos = [], color = (1.0, 0.0, 0.0, 0.5), size = 0.5)
+    
+    mx = gl.GLAxisItem()
+    mx.setSize(x=1000, y=1000, z=1000)
+    self.magn3D.addItem(ax)
+    
+    self.acc3D_sp = gl.GLScatterPlotItem()
     self.acc3D.addItem(self.acc3D_sp)
+    
+    self.magn3D_sp = gl.GLScatterPlotItem()
+    self.magn3D.addItem(self.magn3D_sp)
     
     # axis for the cal 3D graph
     g_a = gl.GLAxisItem()
@@ -266,14 +277,10 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     acc3D_cal_data = np.array(self.acc_cal_data).transpose()
     magn3D_cal_data = np.array(self.magn_cal_data).transpose()
     
-    print acc3D_cal_data
-    
-    color = np.ones((acc3D_cal_data.shape[0], 4))
-    sp = gl.GLScatterPlotItem(pos=acc3D_cal_data, color=color, size=1)
+    sp = gl.GLScatterPlotItem(pos=acc3D_cal_data, color = (1, 1, 1, 1), size=2)
     self.acc3D_cal.addItem(sp)
     
-    color = np.ones((magn3D_cal_data.shape[0], 4))
-    sp = gl.GLScatterPlotItem(pos=magn3D_cal_data, color=color, size=1)
+    sp = gl.GLScatterPlotItem(pos=magn3D_cal_data, color = (1, 1, 1, 1), size=2)
     self.magn3D_cal.addItem(sp)
     
     #enable calibration buttons to activate calibration storing functions
@@ -359,26 +366,12 @@ const float magn_scale_z = %f;
     self.magnYZ.plot(x = self.magn_data[1], y = self.magn_data[2], clear = True, pen='g')
     self.magnZX.plot(x = self.magn_data[2], y = self.magn_data[0], clear = True, pen='b')
     
-    pos = numpy.array([self.acc_data[0],self.acc_data[1],self.acc_data[2]]).transpose()
-    #self.acc3D_sp.setData(pos = pos)
-    color = numpy.ones((pos.shape[0], 4))
-    pos = numpy.ones((pos.shape[0], 3))
-    #self.acc3D_sp = gl.GLScatterPlotItem(pos=pos, color=color, size=5)
-    self.acc3D_sp.setData(pos=pos, color=color, size=5)
-    #point3D = [{'pos': (self.acc_data[0],self.acc_data[1],self.acc_data[2]), 'size':0.5, 'color':(1.0, 0.0, 0.0, 0.5)}]
+    acc_pos = numpy.array([self.acc_data[0],self.acc_data[1],self.acc_data[2]]).transpose()
+    self.acc3D_sp.setData(pos=acc_pos, color = (1, 1, 1, 1), size=2)
     
-    #points = numpy.array([self.acc_data[0],self.acc_data[1],self.acc_data[2]])
-    #points = numpy.transpose(points)
-    #print points
-    
-    #print numpy.array(self.acc_data)
-    
-    #poss = (numpy.random.random(size=(100000,3)) * 10) - 5
-    
-    #poss = [[1, 1, 1]]
-    
-    #self.sp.setData(pos = poss)
-    
+    magn_pos = numpy.array([self.magn_data[0],self.magn_data[1],self.magn_data[2]]).transpose()
+    self.magn3D_sp.setData(pos=magn_pos, color = (1, 1, 1, 1), size=2)
+
 
 class SerialWorker(QThread):
   def __init__(self, parent = None, ser = None):

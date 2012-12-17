@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'freeimu_cal.ui'
 #
-# Created: Mon Dec 17 15:03:39 2012
+# Created: Mon Dec 17 17:22:26 2012
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -443,6 +443,12 @@ class Ui_FreeIMUCal(object):
         self.clearCalibrationEEPROMButton.setObjectName(_fromUtf8("clearCalibrationEEPROMButton"))
         self.horizontalLayout_4.addWidget(self.clearCalibrationEEPROMButton)
         self.tabWidget.addTab(self.calibratedTab, _fromUtf8(""))
+        self.tab_9 = QtGui.QWidget()
+        self.tab_9.setObjectName(_fromUtf8("tab_9"))
+        self.label_4 = QtGui.QLabel(self.tab_9)
+        self.label_4.setGeometry(QtCore.QRect(290, 270, 261, 16))
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.tabWidget.addTab(self.tab_9, _fromUtf8(""))
         FreeIMUCal.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(FreeIMUCal)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -499,6 +505,8 @@ class Ui_FreeIMUCal(object):
         self.clearCalibrationEEPROMButton.setToolTip(_translate("FreeIMUCal", "<html><head/><body><p>Clear any calibration parameter from the microcontroller EEPROM</p></body></html>", None))
         self.clearCalibrationEEPROMButton.setText(_translate("FreeIMUCal", "Clear EEPROM", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.calibratedTab), _translate("FreeIMUCal", "Calibrated", None))
+        self.label_4.setText(_translate("FreeIMUCal", "To Be Implemented", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_9), _translate("FreeIMUCal", "Orientation Sensing Test", None))
 
-from pyqtgraph.opengl import GLViewWidget
 from pyqtgraph import PlotWidget
+from pyqtgraph.opengl import GLViewWidget
