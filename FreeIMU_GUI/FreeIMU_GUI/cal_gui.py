@@ -118,13 +118,13 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.acc3D_sp = gl.GLScatterPlotItem(pos = [], color = (1.0, 0.0, 0.0, 0.5), size = 0.5)
     self.acc3D.addItem(self.acc3D_sp)
     
-    #b = gl.GLBoxItem()
-    #self.acc3D.addItem(b)
-
-    #ax2 = gl.GLAxisItem()
-    #ax2.setParentItem(b)
-
-    #b.translate(1,1,1)
+    # axis for the cal 3D graph
+    g_a = gl.GLAxisItem()
+    g_a.setSize(x=10000, y=10000, z=10000)
+    self.acc3D_cal.addItem(g_a)
+    g_m = gl.GLAxisItem()
+    g_m.setSize(x=1000, y=1000, z=1000)
+    self.magn3D_cal.addItem(g_m)
     
 
   def set_status(self, status):
@@ -249,9 +249,11 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.calRes_magn_SCy.setText(str(self.magn_scale[1]))
     self.calRes_magn_SCz.setText(str(self.magn_scale[2]))
     
+    # compute calibrated data
     self.acc_cal_data = cal_lib.compute_calibrate_data(self.acc_data, self.acc_offset, self.acc_scale)
     self.magn_cal_data = cal_lib.compute_calibrate_data(self.magn_data, self.magn_offset, self.magn_scale)
     
+    # populate 2D graphs with calibrated data
     self.accXY_cal.plot(x = self.acc_cal_data[0], y = self.acc_cal_data[1], clear = True, pen='r')
     self.accYZ_cal.plot(x = self.acc_cal_data[1], y = self.acc_cal_data[2], clear = True, pen='g')
     self.accZX_cal.plot(x = self.acc_cal_data[2], y = self.acc_cal_data[0], clear = True, pen='b')
@@ -259,6 +261,20 @@ class FreeIMUCal(QMainWindow, Ui_FreeIMUCal):
     self.magnXY_cal.plot(x = self.magn_cal_data[0], y = self.magn_cal_data[1], clear = True, pen='r')
     self.magnYZ_cal.plot(x = self.magn_cal_data[1], y = self.magn_cal_data[2], clear = True, pen='g')
     self.magnZX_cal.plot(x = self.magn_cal_data[2], y = self.magn_cal_data[0], clear = True, pen='b')
+    
+    # populate 3D graphs with calibrated data
+    acc3D_cal_data = np.array(self.acc_cal_data).transpose()
+    magn3D_cal_data = np.array(self.magn_cal_data).transpose()
+    
+    print acc3D_cal_data
+    
+    color = np.ones((acc3D_cal_data.shape[0], 4))
+    sp = gl.GLScatterPlotItem(pos=acc3D_cal_data, color=color, size=1)
+    self.acc3D_cal.addItem(sp)
+    
+    color = np.ones((magn3D_cal_data.shape[0], 4))
+    sp = gl.GLScatterPlotItem(pos=magn3D_cal_data, color=color, size=1)
+    self.magn3D_cal.addItem(sp)
     
     #enable calibration buttons to activate calibration storing functions
     self.saveCalibrationHeaderButton.setEnabled(True)

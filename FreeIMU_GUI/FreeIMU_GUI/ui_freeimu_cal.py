@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'freeimu_cal.ui'
 #
-# Created: Thu Dec 13 18:41:16 2012
+# Created: Mon Dec 17 15:03:39 2012
 #      by: PyQt4 UI code generator 4.9.6
 #
 # WARNING! All changes made in this file will be lost!
@@ -500,5 +500,5 @@ class Ui_FreeIMUCal(object):
         self.clearCalibrationEEPROMButton.setText(_translate("FreeIMUCal", "Clear EEPROM", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.calibratedTab), _translate("FreeIMUCal", "Calibrated", None))
 
-from pyqtgraph import PlotWidget
 from pyqtgraph.opengl import GLViewWidget
+from pyqtgraph import PlotWidget
