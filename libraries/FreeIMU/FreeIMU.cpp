@@ -139,7 +139,7 @@ void FreeIMU::init(int accgyro_addr, bool fastmode) {
   #elif defined(__arm__)
     if(fastmode) {
       #if defined(CORE_TEENSY) && F_BUS == 48000000
-        I2C0_F = 0x85;  // Teensy 3.0 at 48 or 96 MHz
+        I2C0_F = 0x1A;  // Teensy 3.0 at 48 or 96 MHz
         I2C0_FLT = 2;
       #elif defined(CORE_TEENSY) && F_BUS == 24000000
         I2C0_F = 0x45;  // Teensy 3.0 at 24 MHz
@@ -401,7 +401,7 @@ void  FreeIMU::AHRSupdate(float gx, float gy, float gz, float ax, float ay, floa
   q2q3 = q2 * q3;
   q3q3 = q3 * q3;
   
-  #if IS_9DOM()
+  #if IS_9DOM() && not defined(DISABLE_MAGN)
   // Use magnetometer measurement only when valid (avoids NaN in magnetometer normalisation)
   if((mx != 0.0f) && (my != 0.0f) && (mz != 0.0f)) {
     float hx, hy, bx, bz;

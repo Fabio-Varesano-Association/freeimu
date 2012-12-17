@@ -38,7 +38,9 @@ THE SOFTWARE.
 #define _MPU60X0_H_
 
 #include "I2Cdev.h"
-#include <avr/pgmspace.h>
+#if defined(__AVR__)
+  #include <avr/pgmspace.h>
+#endif
 
 //#define DEBUG
 #ifdef DEBUG
@@ -754,6 +756,7 @@ class MPU60X0 {
         int16_t getZGyroOffsetUser();
         void setZGyroOffsetUser(int16_t offset);
         
+#if defined(__AVR__)
         // INT_ENABLE register (DMP functions)
         bool getIntPLLReadyEnabled();
         void setIntPLLReadyEnabled(bool enabled);
@@ -800,7 +803,7 @@ class MPU60X0 {
         // DMP_CFG_2 register
         uint8_t getDMPConfig2();
         void setDMPConfig2(uint8_t config);
-		
+#endif
 		
 
         // special methods for MotionApps 2.0 implementation

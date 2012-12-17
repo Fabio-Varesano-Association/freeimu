@@ -1,5 +1,6 @@
-
-#include <avr/pgmspace.h>
+#if defined(__AVR__)
+  #include <avr/pgmspace.h>
+#endif
 #include <Arduino.h>
 
 #include "bma180.h"
